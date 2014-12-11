@@ -5,9 +5,9 @@ Provider SDK for OneGet (C#)
 
 Instructions:
 
-    Fork this repository, and change the name of the project to reflect your project name.
-    
-    Clone the project locally and you can then add an upstream remote:
+Fork this repository, and change the name of the project to reflect your project name.
+
+Clone the project locally and you can then add an upstream remote:
     
 ``` bash
     git clone https://github.com/YOURNAME/YOURPROJECT.git
@@ -16,7 +16,7 @@ Instructions:
     
 ```
 
-    Then, you can pull updates to the OneGet provider SDK by simply:
+Then, you can pull updates to the OneGet provider SDK by simply:
     
 ``` bash
     git pull upstream master
