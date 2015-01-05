@@ -16,7 +16,13 @@ Clone the project locally and you can then add an upstream remote:
     
 ```
 
-Then, you can pull updates to the OneGet provider SDK by simply:
+Next, fill in the values for your project:
+
+``` powershell
+    .\initialize-project.ps1 -
+```
+
+When you need to, you can always pull updates to the OneGet provider SDK by simply:
     
 ``` bash
     git pull upstream master
