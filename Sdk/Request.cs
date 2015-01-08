@@ -12,64 +12,107 @@
 //  limitations under the License.
 //  
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Security;
-using IRequestObject = System.Object;
-
 namespace OneGet.Sdk {
-
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Security;
+    using Resources;
+    
     public abstract class Request {
         private Dictionary<string, string[]> _options;
-        private string[] _sources;
+        private string[] _packageSources;
 
-        #region copy core-apis
+        #region OneGet Interfaces
+        public interface IProviderServices {
+            bool IsElevated { get; }
 
-        public abstract bool IsCanceled {get;}
+            string GetCanonicalPackageId(string providerName, string packageName, string version);
 
-        /// <summary>
-        ///     Returns the internal version of the OneGet core.
-        ///     This will usually only be updated if there is a breaking API or Interface change that might
-        ///     require other code to know which version is running.
-        /// </summary>
-        /// <returns>Internal Version of OneGet</returns>
-        public abstract int CoreVersion();
+            string ParseProviderName(string canonicalPackageId);
 
-        public abstract bool NotifyBeforePackageInstall(string packageName, string version, string source, string destination);
+            string ParsePackageName(string canonicalPackageId);
 
-        public abstract bool NotifyPackageInstalled(string packageName, string version, string source, string destination);
+            string ParsePackageVersion(string canonicalPackageId);
 
-        public abstract bool NotifyBeforePackageUninstall(string packageName, string version, string source, string destination);
+            void DownloadFile(Uri remoteLocation, string localFilename, Request requestObject);
 
-        public abstract bool NotifyPackageUninstalled(string packageName, string version, string source, string destination);
+            bool IsSupportedArchive(string localFilename, Request requestObject);
 
-        public abstract IEnumerable<string> ProviderNames {get;}
+            IEnumerable<string> UnpackArchive(string localFilename, string destinationFolder, Request requestObject);
 
-        public abstract object PackageProviders {get;}
+            void AddPinnedItemToTaskbar(string item, Request requestObject);
 
-        public abstract object SelectProvidersWithFeature(string featureName);
+            void RemovePinnedItemFromTaskbar(string item, Request requestObject);
 
-        public abstract object SelectProvidersWithFeature(string featureName, string value);
+            void CreateShortcutLink(string linkPath, string targetPath, string description, string workingDirectory, string arguments, Request requestObject);
 
-        public abstract object SelectProviders(string providerName, IRequestObject requestObject);
+            void SetEnvironmentVariable(string variable, string value, string context, Request requestObject);
 
-        public abstract bool RequirePackageProvider(string requestor, string packageProviderName, string minimumVersion, IRequestObject requestObject);
+            void RemoveEnvironmentVariable(string variable, string context, Request requestObject);
 
-        public abstract string GetCanonicalPackageId(string providerName, string packageName, string version);
+            void CopyFile(string sourcePath, string destinationPath, Request requestObject);
 
-        public abstract string ParseProviderName(string canonicalPackageId);
+            void Delete(string path, Request requestObject);
 
-        public abstract string ParsePackageName(string canonicalPackageId);
+            void DeleteFolder(string folder, Request requestObject);
 
-        public abstract string ParsePackageVersion(string canonicalPackageId);
+            void CreateFolder(string folder, Request requestObject);
+
+            void DeleteFile(string filename, Request requestObject);
+
+            string GetKnownFolder(string knownFolder, Request requestObject);
+
+            string CanonicalizePath(string text, string currentDirectory);
+
+            bool FileExists(string path);
+
+            bool DirectoryExists(string path);
+
+            bool Install(string fileName, string additionalArgs, Request requestObject);
+
+            bool IsSignedAndTrusted(string filename, Request requestObject);
+
+            bool ExecuteElevatedAction(string provider, string payload, Request requestObject);
+        }
+
+        public interface IPackageProvider {
+            
+        }
+
+        public interface IPackageManagementService {
+            int Version { get; }
+
+            IEnumerable<string> ProviderNames { get; }
+
+            IEnumerable<string> AllProviderNames { get; }
+
+            IEnumerable<IPackageProvider> PackageProviders { get; }
+
+            IEnumerable<IPackageProvider> SelectProvidersWithFeature(string featureName);
+
+            IEnumerable<IPackageProvider> SelectProvidersWithFeature(string featureName, string value);
+
+            IEnumerable<IPackageProvider> SelectProviders(string providerName, Request requestObject);
+
+            bool RequirePackageProvider(string requestor, string packageProviderName, string minimumVersion, Request requestObject);
+        }
+        #endregion
+
+        #region core-apis
+
+        public abstract dynamic PackageManagementService {get;}
+
+        public abstract IProviderServices ProviderServices {get;}
 
         #endregion
 
         #region copy host-apis
 
         /* Synced/Generated code =================================================== */
+        public abstract bool IsCanceled {get;}
+
         public abstract string GetMessageString(string messageText, string defaultText);
 
         public abstract bool Warning(string messageText);
@@ -92,7 +135,7 @@ namespace OneGet.Sdk {
         ///     Used by a provider to request what metadata keys were passed from the user
         /// </summary>
         /// <returns></returns>
-        public abstract IEnumerable<string> GetOptionKeys();
+        public abstract IEnumerable<string> OptionKeys {get;}
 
         /// <summary>
         /// </summary>
@@ -100,11 +143,11 @@ namespace OneGet.Sdk {
         /// <returns></returns>
         public abstract IEnumerable<string> GetOptionValues(string key);
 
-        public abstract IEnumerable<string> GetSources();
+        public abstract IEnumerable<string> Sources {get;}
 
-        public abstract string CredentialUsername { get; }
+        public abstract string CredentialUsername {get;}
 
-        public abstract SecureString CredentialPassword { get; }
+        public abstract SecureString CredentialPassword {get;}
 
         public abstract bool ShouldBootstrapProvider(string requestor, string providerName, string providerVersion, string providerType, string location, string destination);
 
@@ -112,9 +155,9 @@ namespace OneGet.Sdk {
 
         public abstract bool AskPermission(string permission);
 
-        public abstract bool IsInteractive();
+        public abstract bool IsInteractive {get;}
 
-        public abstract int CallCount();
+        public abstract int CallCount {get;}
 
         #endregion
 
@@ -148,7 +191,7 @@ namespace OneGet.Sdk {
 
         public abstract bool YieldMetadata(string fieldId, string @namespace, string name, string value);
 
-        #endif
+#endif
 
         /// <summary>
         ///     Used by a provider to return fields for a package source (repository)
@@ -176,51 +219,14 @@ namespace OneGet.Sdk {
         public abstract bool YieldValue(string value);
 
         #endregion
-
-        #region copy service-apis
-
-        /* Synced/Generated code =================================================== */
-        public abstract void DownloadFile(Uri remoteLocation, string localFilename, IRequestObject requestObject);
-
-        public abstract bool IsSupportedArchive(string localFilename, IRequestObject requestObject);
-
-        public abstract IEnumerable<string> UnpackArchive(string localFilename, string destinationFolder, IRequestObject requestObject);
-
-        public abstract void AddPinnedItemToTaskbar(string item, IRequestObject requestObject);
-
-        public abstract void RemovePinnedItemFromTaskbar(string item, IRequestObject requestObject);
-
-        public abstract void CreateShortcutLink(string linkPath, string targetPath, string description, string workingDirectory, string arguments, IRequestObject requestObject);
-
-        public abstract void SetEnvironmentVariable(string variable, string value, string context, IRequestObject requestObject);
-
-        public abstract void RemoveEnvironmentVariable(string variable, string context, IRequestObject requestObject);
-
-        public abstract void CopyFile(string sourcePath, string destinationPath, IRequestObject requestObject);
-
-        public abstract void Delete(string path, IRequestObject requestObject);
-
-        public abstract void DeleteFolder(string folder, IRequestObject requestObject);
-
-        public abstract void CreateFolder(string folder, IRequestObject requestObject);
-
-        public abstract void DeleteFile(string filename, IRequestObject requestObject);
-
-        public abstract string GetKnownFolder(string knownFolder, IRequestObject requestObject);
-
-        public abstract string CanonicalizePath(string text, string currentDirectory);
-
-        public abstract bool FileExists(string path);
-
-        public abstract bool DirectoryExists(string path);
-
-        public abstract bool Install(string fileName, string additionalArgs, IRequestObject requestObject);
-
-        public abstract bool IsSignedAndTrusted(string filename, IRequestObject requestObject);
-
-        public abstract bool ExecuteElevatedAction(string provider, string payload, IRequestObject requestObject);
-
-        #endregion
+        /// <summary>
+        ///     Yield values in a dictionary as key/value pairs. (one pair for each value in each key)
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <returns></returns>
+        public bool Yield(Dictionary<string, string[]> dictionary) {
+            return dictionary.All(Yield);
+        }
 
         public bool Yield(KeyValuePair<string, string[]> pair) {
             if (pair.Value.Length == 0) {
@@ -271,7 +277,7 @@ namespace OneGet.Sdk {
         }
 
         internal string GetMessageStringInternal(string messageText) {
-            return Resources.Messages.ResourceManager.GetString(messageText);
+            return Messages.ResourceManager.GetString(messageText);
         }
 
         internal string FormatMessageString(string messageText, params object[] args) {
@@ -303,12 +309,14 @@ namespace OneGet.Sdk {
 
         public Dictionary<string, string[]> Options {
             get {
-                return _options ?? (_options = GetOptionKeys().Where( each => !string.IsNullOrWhiteSpace(each)).ToDictionary(k=>k, (k) => (GetOptionValues(k) ?? new string[0]).ToArray())) ;
+                return _options ?? (_options = OptionKeys.Where(each => !string.IsNullOrWhiteSpace(each)).ToDictionary(k => k, (k) => (GetOptionValues(k) ?? new string[0]).ToArray()));
             }
         }
-        
-        public IEnumerable<string> Sources {
-            get { return _sources ?? (_sources = (GetSources() ?? new string[0]).ToArray()); }
+
+        public IEnumerable<string> PackageSources {
+            get {
+                return _packageSources ?? (_packageSources = (Sources ?? new string[0]).ToArray());
+            }
         }
     }
 }
