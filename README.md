@@ -1,5 +1,5 @@
-oneget-provider-sdk-cs
-======================
+OneGet package provider Sample
+========================
 
 Provider SDK for OneGet (C#)
 
