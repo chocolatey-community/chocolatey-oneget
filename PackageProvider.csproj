@@ -10,10 +10,29 @@
     <RootNamespace>OneGet</RootNamespace>
     <AssemblyName>SampleProvider</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition=" '$(SolutionDir)'=='' ">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), PackageProvider.sln))\</SolutionDir>
-    <SolutionPath Condition="$(SolutionPath) == '' Or $(SolutionPath) == '*Undefined*'">$(SolutionDir)\PackageProvider.sln</SolutionPath>
+    <SolutionPropsPath Condition="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), solution.props)) != ''">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), solution.props))\solution.props</SolutionPropsPath>
   </PropertyGroup>
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), solution.props))\solution.props" Condition="Exists('$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), solution.props))\solution.props')" />
+  <Import Project="$(SolutionPropsPath)" Condition="$(SolutionPropsPath) != '' AND Exists($(SolutionPropsPath))" />
+  
+  <PropertyGroup Condition="$(SolutionPropsPath) == '' OR !Exists($(SolutionPropsPath))">
+    <!-- if this is built standalone, we don't need the solution.props file. -->
+    <SolutionDir Condition=" '$(SolutionDir)'=='' ">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), PackageProvider.sln))\</SolutionDir>
+    <SolutionRootDir >$(SolutionDir)</SolutionRootDir>
+  
+    <!-- Defaults to .Net 4.0 -->
+    <TargetFrameworkVersion Condition="$(TargetFrameworkVersion) == '' Or $(TargetFrameworkVersion) == '*Undefined*'">v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    
+    <OutputPath>$(SolutionRootDir)output\$(TargetFrameworkVersion.Replace(".",""))\$(Configuration)\bin\</OutputPath>
+    <BaseIntermediateOutputPath>$(SolutionRootDir)intermediate\$(TargetFrameworkVersion.Replace(".",""))\$(Configuration)\$(AssemblyName)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DocumentationFile>$(OutputPath)$(AssemblyName).XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+    <RestorePackages>true</RestorePackages>
+    <DefineConstants>FRAMEWORK$(TargetFrameworkVersion.Replace(".",""))</DefineConstants>
+    <OutputRelativePath>output\$(TargetFrameworkVersion.Replace(".",""))\$(Configuration)\bin\</OutputRelativePath>
+  </PropertyGroup>
+  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
