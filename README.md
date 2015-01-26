@@ -18,6 +18,17 @@ Quick and dirty instructions:
 - you should also change the project output name in the `.csproj` to something other than `"SampleProvider.dll" `
 - and update the install-provider.ps1 script with the correct output name. 
 
+
+Clone the project locally and you can then add an upstream remote:
+    
+``` bash
+    git clone https://github.com/YOURNAME/YOURPROJECT.git
+   
+    git remote add remote upstream https://github.com/OneGet/provider-sdk-cs.git
+    
+```
+
+
 Once you build the provider script, run the install-provider.ps1 script and it will copy the assembly to the right spot.
 
 Then:
@@ -37,21 +48,6 @@ Name                     Version          DynamicOptions
 ----                     -------          --------------
 YourProvider           1.0.0.0          {}
 
-```
-
-Clone the project locally and you can then add an upstream remote:
-    
-``` bash
-    git clone https://github.com/YOURNAME/YOURPROJECT.git
-   
-    git remote add remote upstream https://github.com/OneGet/provider-sdk-cs.git
-    
-```
-
-Next, fill in the values for your project:
-
-``` powershell
-    .\initialize-project.ps1 -
 ```
 
 When you need to, you can always pull updates to the OneGet provider SDK by simply:
