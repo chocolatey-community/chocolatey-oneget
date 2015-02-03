@@ -1,7 +1,7 @@
 # by default it will find the newest $providerName.dll and copy it to the right location
 # (change the default value of $providerName when you change your provider name )
 # otherwise you can say 'debug' or 'release' for the $build
-Param( [string]$build = '', [string]$providerName = 'SampleProvider' )
+Param( [string]$build = '', [string]$providerName = 'ChocolateyProvider' )
 
 $orig = (pwd)
 cd $PSScriptRoot

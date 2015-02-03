@@ -4,25 +4,19 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{12BC926F-A38B-47DB-A490-21E8686514F6}</ProjectGuid>
+    <ProjectGuid>{12BC926F-9911-47DB-A490-21E8686514F6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OneGet</RootNamespace>
     <AssemblyName>SampleProvider</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <SolutionPropsPath Condition="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), solution.props)) != ''">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), solution.props))\solution.props</SolutionPropsPath>
   </PropertyGroup>
-  <Import Project="$(SolutionPropsPath)" Condition="$(SolutionPropsPath) != '' AND Exists($(SolutionPropsPath))" />
-  
-  <PropertyGroup Condition="$(SolutionPropsPath) == '' OR !Exists($(SolutionPropsPath))">
-    <!-- if this is built standalone, we don't need the solution.props file. -->
-    <SolutionDir Condition=" '$(SolutionDir)'=='' ">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), PackageProvider.sln))\</SolutionDir>
-    <SolutionRootDir >$(SolutionDir)</SolutionRootDir>
-  
+  <PropertyGroup>
+    <SolutionDir Condition=" '$(SolutionDir)'=='' ">$(MSBuildProjectDirectory)\</SolutionDir>
+    <SolutionRootDir>$(SolutionDir)</SolutionRootDir>
     <!-- Defaults to .Net 4.0 -->
     <TargetFrameworkVersion Condition="$(TargetFrameworkVersion) == '' Or $(TargetFrameworkVersion) == '*Undefined*'">v4.0</TargetFrameworkVersion>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    
     <OutputPath>$(SolutionRootDir)output\$(TargetFrameworkVersion.Replace(".",""))\$(Configuration)\bin\</OutputPath>
     <BaseIntermediateOutputPath>$(SolutionRootDir)intermediate\$(TargetFrameworkVersion.Replace(".",""))\$(Configuration)\$(AssemblyName)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
@@ -32,7 +26,6 @@
     <DefineConstants>FRAMEWORK$(TargetFrameworkVersion.Replace(".",""))</DefineConstants>
     <OutputRelativePath>output\$(TargetFrameworkVersion.Replace(".",""))\$(Configuration)\bin\</OutputRelativePath>
   </PropertyGroup>
-  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -49,6 +42,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ChocolateyPackageProvider.cs" />
     <Compile Include="Sdk\Constants.cs" />
     <Compile Include="Sdk\ErrorCategory.cs" />
     <Compile Include="Sdk\Request.cs" />
@@ -58,7 +52,6 @@
       <DependentUpon>Messages.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PackageProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Messages.resx">
@@ -67,6 +60,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="chocolatey">
+      <HintPath>packages\chocolatey.lib.0.9.9-alpha-20150125\lib\chocolatey.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp">
     </Reference>
     <Reference Include="System">
@@ -75,6 +74,7 @@
   <ItemGroup>
     <None Include="LICENSE" />
     <None Include="oneget.manifest" />
+    <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

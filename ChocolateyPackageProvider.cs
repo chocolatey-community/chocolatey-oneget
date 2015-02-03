@@ -31,7 +31,7 @@ namespace OneGet {
     /// 
     /// todo: Give this class a proper name
     /// </summary>
-    public class PackageProvider {
+    public class ChocolateyPackageProvider {
         /// <summary>
         /// The features that this package supports.
         /// todo: fill in the feature strings for this provider
@@ -61,7 +61,7 @@ namespace OneGet {
         /// </summary>
         /// <returns>The name of this provider </returns>
         public string PackageProviderName {
-            get { return "SampleProvider"; }
+            get { return "Choco"; }
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace OneGet {
         public void ResolvePackageSources(Request request) {
             // Nice-to-have put a debug message in that tells what's going on.
             request.Debug("Calling '{0}::ResolvePackageSources'", PackageProviderName);
-
+            
             // todo: resolve package sources
             if (request.Sources.Any()) {
                 // the system is requesting sources that match the values passed.
