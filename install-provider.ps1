@@ -6,6 +6,39 @@ Param( [string]$build = '', [string]$providerName = 'ChocolateyProvider' )
 $orig = (pwd)
 cd $PSScriptRoot
 
+
+function CopyHarder {
+    param( [string]$srcPath, [string]$output )
+    
+    if( test-path $output ) {
+        write-host -fore white "Deleting old file from `n   '$output' `n"
+        # delete the old provider assembly
+        # even if it's in use.
+        $tmpName = "$filename.delete-me.$(get-random)"
+        $tmpPath = "$env:localappdata\oneget\providerassemblies\$tmpName"
+        
+        ren $output $tmpName -force -ea SilentlyContinue 
+        erase -force -ea SilentlyContinue $tmpPath
+        if( test-path $tmpPath ) {
+            #locked. Move to temp folder
+            write-host -fore yellow "Old provider is in use, moving to `n   '$env:TEMP' folder `n"
+            move $tmpPath $env:TEMP
+            write-host -fore yellow "Moved old provider out of the way, you must restart any processes using the it. `n"
+        }
+        
+        if( test-path $output ) {
+            write-host -fore red "Can't remove existing file: `n $output `n"
+            cd $orig 
+            return
+        }
+    }
+    
+    write-host -fore green "copying provider assembly `n   '$srcpath' `n=> '$output' `n"
+    copy -force $srcPath $output
+}
+
+
+
 $candidates = dir -recurse "output\$providerName.dll"  | sort -Descending -Property LastWriteTime
 
 if( $build ) {
@@ -21,37 +54,15 @@ if( -not $provider ) {
     cd $orig 
     return
 }
+
 $srcpath = $provider.Fullname
 $filename = $provider.Name
+$srcdir = $provider.Directory
 
-
-$output = "$env:localappdata\oneget\providerassemblies\$fileName"
-if( test-path $output ) {
-    write-host -fore white "Deleting old provider from `n   '$output' `n"
-    # delete the old provider assembly
-    # even if it's in use.
-    $tmpName = "$filename.delete-me.$(get-random)"
-    $tmpPath = "$env:localappdata\oneget\providerassemblies\$tmpName"
-    
-    ren $output $tmpName -force -ea SilentlyContinue 
-    erase -force -ea SilentlyContinue $tmpPath
-    if( test-path $tmpPath ) {
-        #locked. Move to temp folder
-        write-host -fore yellow "Old provider is in use, moving to `n   '$env:TEMP' folder `n"
-        move $tmpPath $env:TEMP
-        write-host -fore yellow "Moved old provider out of the way, you must restart any processes using the it. `n"
-    }
-    
-    if( test-path $output ) {
-        write-host -fore red "Can't remove existing file: `n $output `n"
-        cd $orig 
-        return
-    }
-  
+foreach( $dll in (dir $srcdir\*.dll)  ) {
+    $output = "$env:localappdata\oneget\providerassemblies\$($dll.Name)"
+    CopyHarder $dll.FullName $output
 }
-
-write-host -fore green "copying provider assembly `n   '$srcpath' `n=> '$output' `n"
-copy -force $srcPath $output
 
 cd $orig
 

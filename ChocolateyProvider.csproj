@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OneGet</RootNamespace>
-    <AssemblyName>SampleProvider</AssemblyName>
+    <AssemblyName>ChocolateyProvider</AssemblyName>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup>
