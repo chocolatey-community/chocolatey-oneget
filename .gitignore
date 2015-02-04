@@ -98,3 +98,4 @@ policheck*
 OneGet.orig.sln
 *pingme*
 .nuget
+*.GhostDoc.xml

@@ -19,12 +19,12 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("$project.$provider")]
-[assembly: AssemblyDescription("OneGet package provider: $provider.")]
+[assembly: AssemblyTitle("Chocolatey.OneGet")]
+[assembly: AssemblyDescription("OneGet package provider: Chocolatey")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("$project")]
-[assembly: AssemblyProduct("$project.$provider")]
-[assembly: AssemblyCopyright("Copyright $project © 2014")]
+[assembly: AssemblyCompany("Chocolatey")]
+[assembly: AssemblyProduct("Chocolatey Provider for OneGet")]
+[assembly: AssemblyCopyright("Copyright Chocolatey © 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
