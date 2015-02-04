@@ -26,11 +26,6 @@ namespace OneGet
 	/// Important notes:
 	///	- Required Methods: Not all methods are required; some package providers do not support some features. If the methods isn't used or implemented it should be removed (or commented out)
 	///	- Error Handling: Avoid throwing exceptions from these methods. To properly return errors to the user, use the request.Error(...) method to notify the user of an error conditionm and then return.
-	///	- Communicating with the HOST and CORE: each method takes a Request (in reality, an alias for System.Object), which can be used in one of two ways:
-	///		- use the c# 'dynamic' keyword, and call functions on the object directly.
-	///		- use the <code><![CDATA[ .As<Request>() ]]></code> extension method to strongly-type it to the Request type (which calls upon the duck-typer to generate a strongly-typed wrapper).  The strongly-typed wrapper also implements several helper functions to make using the request object easier.
-	/// 
-	/// TODO: Give this class a proper name
 	/// </summary>
 	public class ChocolateyPackageProvider
 	{
@@ -48,17 +43,17 @@ namespace OneGet
 #if FOR_EXAMPLE 
 			// add this if you want to 'hide' your provider by default.
 			{ Constants.Features.AutomationOnly, Constants.FeaturePresent },
-
+#endif
 			// you can list the magic signatures (bytes at the beginning of a file) that we can use 
 			// to peek and see if a given file is yours.
 			{ Constants.Features.MagicSignatures, Constants.Signatures.ZipVariants},
-#endif
 		};
 
 
 		/// <summary>
 		/// Returns the name of the Provider. 
 		/// TODO: Test and verify that we want "choco" vs "chocolatey"
+		/// TODO: let's keep it as 'choco' until we are ready to punt the prototype provider
 		/// </summary>
 		/// <returns>The name of this provider</returns>
 		public string PackageProviderName
