@@ -43,6 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ChocolateyPackageProvider.cs" />
+    <Compile Include="RequestLogger.cs" />
     <Compile Include="Sdk\Constants.cs" />
     <Compile Include="Sdk\ErrorCategory.cs" />
     <Compile Include="Sdk\Request.cs" />
