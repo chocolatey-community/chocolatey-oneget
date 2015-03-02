@@ -49,6 +49,8 @@ namespace OneGet
 			{ Constants.Features.MagicSignatures, Constants.Signatures.ZipVariants},
 		};
 
+		private GetChocolatey _chocolatey;
+
 
 		/// <summary>
 		/// Returns the name of the Provider. 
@@ -88,24 +90,8 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void InitializeProvider(Request request)
 		{
-			// TODO: improve this debug message that tells what's going on.
-			request.Debug("Calling '{0}::InitializeProvider'", PackageProviderName);
-			// TODO: add any one-time initialization code here, or remove this method
-		}
-
-		/// <summary>
-		/// Returns a collection of strings to the client advertizing features this provider supports.
-		/// </summary>
-		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
-		public void GetFeatures(Request request)
-		{
-			// TODO: improve this debug message that tells what's going on.
-			request.Debug("Calling '{0}::GetFeatures' ", PackageProviderName);
-
-			foreach (var feature in Features)
-			{
-				request.Yield(feature);
-			}
+			request.Debug("Calling '{0}::InitializeProvider' to set up a chocolatey with custom logging", PackageProviderName);
+			_chocolatey = Lets.GetChocolatey().SetCustomLogging(new RequestLogger(request));
 		}
 
 		/// <summary>
@@ -149,6 +135,21 @@ namespace OneGet
 			}
 		}
 
+		/// <summary>
+		/// Returns a collection of strings to the client advertizing features this provider supports.
+		/// </summary>
+		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
+		public void GetFeatures(Request request)
+		{
+			request.Debug("Calling '{0}::GetFeatures' ", PackageProviderName);
+
+			foreach (var feature in Features)
+			{
+				request.Yield(feature);
+			}
+		}
+
+		#region Sources
 		/// <summary>
 		/// Resolves and returns Package Sources to the client.
 		/// 
