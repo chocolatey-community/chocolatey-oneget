@@ -16,6 +16,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using chocolatey;
+using chocolatey.infrastructure.app.configuration;
+using chocolatey.infrastructure.app.domain;
 using OneGet.Sdk;
 
 namespace OneGet
@@ -25,7 +28,7 @@ namespace OneGet
 	/// 
 	/// Important notes:
 	///	- Required Methods: Not all methods are required; some package providers do not support some features. If the methods isn't used or implemented it should be removed (or commented out)
-	///	- Error Handling: Avoid throwing exceptions from these methods. To properly return errors to the user, use the request.Error(...) method to notify the user of an error conditionm and then return.
+	///	- Error Handling: Avoid throwing exceptions from these methods. To properly return errors to the user, use the request.Error(...) method to notify the user of an error condition and then return.
 	/// </summary>
 	public class ChocolateyPackageProvider
 	{
@@ -71,7 +74,7 @@ namespace OneGet
 		{
 			get
 			{
-				return "1.0.0.0";
+				return "3.0.0.0";
 			}
 		}
 
@@ -163,15 +166,33 @@ namespace OneGet
 			// TODO: improve this debug message that tells us what's going on.
 			request.Debug("Calling '{0}::ResolvePackageSources'", PackageProviderName);
 
-			// TODO: resolve package sources
+			IEnumerable<ChocolateySource> sources;
 			if (request.Sources.Any())
 			{
 				// the system is requesting sources that match the values passed.
 				// if the value passed can be a legitimate source, but is not registered, return a package source marked unregistered.
+				sources = _chocolatey.Set(conf =>
+				{
+					conf.CommandName = "Source";
+					conf.SourceCommand.Command = SourceCommandType.list;
+					conf.Sources = request.Sources.@join(";");
+					conf.AllowUnofficialBuild = true;
+				}).Sources(true);
 			}
 			else
 			{
 				// the system is requesting all the registered sources
+				sources = _chocolatey.Set(conf =>
+				{
+					conf.CommandName = "Source";
+					conf.SourceCommand.Command = SourceCommandType.list;
+					conf.AllowUnofficialBuild = true;
+				}).Sources(true);
+			}
+
+			foreach (var source in sources)
+			{
+				request.YieldPackageSource(source.Id, source.Value, false, source.Authenticated, false);
 			}
 		}
 
@@ -185,10 +206,17 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void AddPackageSource(string name, string location, bool trusted, Request request)
 		{
-			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::AddPackageSource' '{1}','{2}','{3}'", PackageProviderName, name, location, trusted);
+			request.Debug("Calling {0} source add -n={1} -s'{2}' (we don't support trusted = '{3}')", PackageProviderName, name,
+				location, trusted);
 
-			// TODO: support user-defined package sources OR remove this method
+			_chocolatey.Set(conf =>
+			{
+				conf.CommandName = "Source";
+				conf.SourceCommand.Command = SourceCommandType.add;
+				conf.SourceCommand.Name = name;
+				conf.Sources = location;
+				conf.AllowUnofficialBuild = true;
+			}).Run();
 		}
 
 		/// <summary>
@@ -198,12 +226,19 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void RemovePackageSource(string name, Request request)
 		{
-			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::RemovePackageSource' '{1}'", PackageProviderName, name);
+			request.Debug("Calling {0} source remove -n={1})", PackageProviderName, name);
 
+			_chocolatey.Set(conf =>
+			{
+				conf.CommandName = "Source";
+				conf.SourceCommand.Command = SourceCommandType.remove;
+				conf.SourceCommand.Name = name;
+				conf.AllowUnofficialBuild = true;
+			}).Run();
 			// TODO: support user-defined package sources OR remove this method
 		}
 
+		#endregion
 
 		/// <summary>
 		/// Searches package sources given name and version information 
