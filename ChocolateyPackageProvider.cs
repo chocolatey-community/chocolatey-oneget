@@ -23,6 +23,10 @@ using OneGet.Sdk;
 
 namespace OneGet
 {
+	using chocolatey.infrastructure.results;
+	using NuGet;
+	using Constants = Sdk.Constants;
+
 	/// <summary>
 	/// A Package provider for OneGet.
 	/// 
@@ -177,7 +181,7 @@ namespace OneGet
 					conf.SourceCommand.Command = SourceCommandType.list;
 					conf.Sources = request.Sources.@join(";");
 					conf.AllowUnofficialBuild = true;
-				}).Sources(true);
+				}).List<ChocolateySource>();
 			}
 			else
 			{
@@ -187,7 +191,7 @@ namespace OneGet
 					conf.CommandName = "Source";
 					conf.SourceCommand.Command = SourceCommandType.list;
 					conf.AllowUnofficialBuild = true;
-				}).Sources(true);
+				}).List<ChocolateySource>();
 			}
 
 			foreach (var source in sources)
@@ -253,10 +257,32 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void FindPackage(string name, string requiredVersion, string minimumVersion, string maximumVersion, int id, Request request)
 		{
-			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::FindPackage' '{1}','{2}','{3}','{4}'", PackageProviderName, requiredVersion, minimumVersion, maximumVersion, id);
+			request.Debug("Calling '{0}::FindPackage' '{1}','{2}','{3}','{4}', '{5}'", PackageProviderName, name, requiredVersion, minimumVersion, maximumVersion, id);
+			SemanticVersion min, max, actual;
+			if (string.IsNullOrEmpty(minimumVersion) || !SemanticVersion.TryParse(minimumVersion, out min))
+			{
+				min = new SemanticVersion(-1, -1, -1, -1);
+			}
+			if (string.IsNullOrEmpty(maximumVersion) || !SemanticVersion.TryParse(maximumVersion, out max))
+			{
+				max = new SemanticVersion(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
+			}
+		
+			foreach(var package in _chocolatey.Set(conf =>
+				{
+					conf.CommandName = "List";
+					conf.Input = name;
+					conf.Version = requiredVersion;
+					conf.AllowUnofficialBuild = true;
+				}).List<PackageResult>())
+			{
+				if (SemanticVersion.TryParse(package.Version, out actual) && (actual < min || actual > max))
+				{
+					continue;
+				}
 
-			// TODO: find package by name (and version) or id...
+				request.YieldSoftwareIdentity("", package.Package.Id, package.Version, "", package.Package.Summary, PackageProviderName, name, "", package.InstallLocation );
+			}
 		}
 
 		/// <summary>
