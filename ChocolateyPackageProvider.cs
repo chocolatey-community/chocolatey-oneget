@@ -285,6 +285,7 @@ namespace OneGet
 			}
 		}
 
+/*
 		/// <summary>
 		/// Finds packages given a locally-accessible filename
 		/// 
@@ -348,7 +349,7 @@ namespace OneGet
 
 		}
 
-
+*/
 
 		/// <summary>
 		/// Installs a given package.

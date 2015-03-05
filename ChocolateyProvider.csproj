@@ -65,9 +65,13 @@
       <HintPath>packages\chocolatey.lib.0.9.9-alpha-20150125\lib\chocolatey.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
-      <HintPath>packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+      <HintPath>packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp">
+    </Reference>
+    <Reference Include="NuGet.Core, Version=2.8.50506.491, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\choco\src\output\v40\Release\bin\NuGet.Core.dll</HintPath>
     </Reference>
     <Reference Include="System">
     </Reference>
