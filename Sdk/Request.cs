@@ -28,6 +28,8 @@ namespace OneGet.Sdk {
         public interface IProviderServices {
             bool IsElevated { get; }
 
+            IEnumerable<object> FindPackageByCanonicalId(string canonicalId, Request requestObject);
+
             string GetCanonicalPackageId(string providerName, string packageName, string version, string source);
 
             string ParseProviderName(string canonicalPackageId);
@@ -35,6 +37,8 @@ namespace OneGet.Sdk {
             string ParsePackageName(string canonicalPackageId);
 
             string ParsePackageVersion(string canonicalPackageId);
+
+            string ParsePackageSource(string canonicalPackageId);
 
             void DownloadFile(Uri remoteLocation, string localFilename, Request requestObject);
 
