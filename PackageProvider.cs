@@ -260,19 +260,6 @@ namespace OneGet {
         }
 
         /// <summary>
-        /// Returns package references for all the dependent packages
-        /// </summary>
-        /// <param name="fastPackageReference"></param>
-        /// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
-        public void GetPackageDependencies(string fastPackageReference, Request request) {
-            // Nice-to-have put a debug message in that tells what's going on.
-            request.Debug("Calling '{0}::GetPackageDependencies' '{1}'", PackageProviderName, fastPackageReference);
-
-        }
-
-
-
-        /// <summary>
         /// Installs a given package.
         /// </summary>
         /// <param name="fastPackageReference">A provider supplied identifier that specifies an exact package</param>
