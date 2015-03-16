@@ -370,8 +370,18 @@ namespace OneGet
 		{
 			// TODO: improve this debug message that tells us what's going on.
 			request.Debug("Calling '{0}::InstallPackage' '{1}'", PackageProviderName, fastPackageReference);
+			var packages = _chocolatey.Set(conf =>
+			{
+				conf.CommandName = "Install";
+				conf.PackageNames = fastPackageReference;
+				//conf.Version = requiredVersion;
+				conf.AllowUnofficialBuild = true;
+			}).List<PackageResult>();
 
-			// TODO: Install the package 
+			foreach (var package in packages)
+			{
+				request.YieldSoftwareIdentity(package.Package.Id, package.Package.Title, package.Version, "Semantic", package.Package.Summary, PackageProviderName, fastPackageReference, "", package.InstallLocation);
+			}
 		}
 
 		/// <summary>
