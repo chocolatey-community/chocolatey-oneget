@@ -23,6 +23,7 @@ using OneGet.Sdk;
 
 namespace OneGet
 {
+	using System.IO;
 	using chocolatey.infrastructure.results;
 	using NuGet;
 	using Constants = Sdk.Constants;
@@ -280,8 +281,17 @@ namespace OneGet
 				{
 					continue;
 				}
-
-				request.YieldSoftwareIdentity("", package.Package.Id, package.Version, "", package.Package.Summary, PackageProviderName, name, "", package.InstallLocation );
+				var fastPath = package.Package.GetFullName(); // string.Format("{0} {1}", package.Package.Id, package.Version);
+				var fileName = string.Format("{0}.{1}.nupkg", package.Package.Id, package.Version);
+				request.YieldSoftwareIdentity(
+					fastPath,	// this should be what we need to figure out how to find the package again
+					package.Package.Id,	// this is the friendly name of the package
+					package.Version, "semver",	// the version and version scheme
+					package.Package.Summary ?? package.Package.Description,	// the summary (sometimes NuGet puts it in Description?)
+					package.Source,	// the package SOURCE name
+					name,	// the search that returned this package
+					package.SourceUri,	// the full path to the file (if it's available)
+					fileName);	// a file name in case they want to download it...
 			}
 		}
 
@@ -387,7 +397,26 @@ namespace OneGet
 			// TODO: improve this debug message that tells us what's going on.
 			request.Debug("Calling '{0}::GetInstalledPackages' '{1}'", PackageProviderName, name);
 
-			// TODO: list all installed packages
+			foreach (var package in _chocolatey.Set(conf =>
+			{
+				conf.CommandName = "List";
+				conf.Input = name;
+				conf.ListCommand.LocalOnly = true;
+				conf.AllowUnofficialBuild = true;
+			}).List<PackageResult>())
+			{
+				var fastPath = package.Package.GetFullName(); // string.Format("{0} {1}", package.Package.Id, package.Version);
+				var fileName = string.Format("{0}.{1}.nupkg", package.Package.Id, package.Version);
+				request.YieldSoftwareIdentity(
+					fastPath,	// this should be what we need to figure out how to find the package again
+					package.Package.Id,	// this is the friendly name of the package
+					package.Version, "semver",	// the version and version scheme
+					package.Package.Summary ?? package.Package.Description,	// the summary (sometimes NuGet puts it in Description?)
+					package.Source,	// the package SOURCE name
+					name,	// the search that returned this package
+					package.SourceUri,	// the full path to the file (if it's available)
+					fileName);	// a file name in case they want to download it...
+			}
 		}
 
 		/// <summary>
