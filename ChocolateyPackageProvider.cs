@@ -261,7 +261,7 @@ namespace OneGet
 			SemanticVersion min, max, actual;
 			if (string.IsNullOrEmpty(minimumVersion) || !SemanticVersion.TryParse(minimumVersion, out min))
 			{
-				min = new SemanticVersion(-1, -1, -1, -1);
+				min = new SemanticVersion(default(Version));
 			}
 			if (string.IsNullOrEmpty(maximumVersion) || !SemanticVersion.TryParse(maximumVersion, out max))
 			{
