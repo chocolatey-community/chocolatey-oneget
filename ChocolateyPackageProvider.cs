@@ -98,7 +98,7 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void InitializeProvider(Request request)
 		{
-			request.Debug("Calling '{0}::InitializeProvider' to set up a chocolatey with custom logging", PackageProviderName);
+			request.Debug("Entering '{0}::InitializeProvider' to set up a chocolatey with custom logging", PackageProviderName);
 			_chocolatey = Lets.GetChocolatey().SetCustomLogging(new RequestLogger(request));
 		}
 
@@ -114,7 +114,7 @@ namespace OneGet
 		public void GetDynamicOptions(string category, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::GetDynamicOptions' {1}", PackageProviderName, category);
+			request.Debug("Entering '{0}::GetDynamicOptions' {1}", PackageProviderName, category);
 
 			switch ((category ?? string.Empty).ToLowerInvariant())
 			{
@@ -149,7 +149,7 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void GetFeatures(Request request)
 		{
-			request.Debug("Calling '{0}::GetFeatures' ", PackageProviderName);
+			request.Debug("Entering '{0}::GetFeatures' ", PackageProviderName);
 
 			foreach (var feature in Features)
 			{
@@ -169,7 +169,7 @@ namespace OneGet
 		public void ResolvePackageSources(Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::ResolvePackageSources'", PackageProviderName);
+			request.Debug("Entering '{0}::ResolvePackageSources'", PackageProviderName);
 
 			IEnumerable<ChocolateySource> sources;
 			if (request.Sources.Any())
@@ -211,7 +211,7 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void AddPackageSource(string name, string location, bool trusted, Request request)
 		{
-			request.Debug("Calling {0} source add -n={1} -s'{2}' (we don't support trusted = '{3}')", PackageProviderName, name,
+			request.Debug("Entering {0} source add -n={1} -s'{2}' (we don't support trusted = '{3}')", PackageProviderName, name,
 				location, trusted);
 
 			_chocolatey.Set(conf =>
@@ -231,7 +231,7 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void RemovePackageSource(string name, Request request)
 		{
-			request.Debug("Calling {0} source remove -n={1})", PackageProviderName, name);
+			request.Debug("Entering {0} source remove -n={1})", PackageProviderName, name);
 
 			_chocolatey.Set(conf =>
 			{
@@ -258,7 +258,7 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void FindPackage(string name, string requiredVersion, string minimumVersion, string maximumVersion, int id, Request request)
 		{
-			request.Debug("Calling '{0}::FindPackage' '{1}','{2}','{3}','{4}', '{5}'", PackageProviderName, name, requiredVersion, minimumVersion, maximumVersion, id);
+			request.Debug("Entering '{0}::FindPackage' '{1}','{2}','{3}','{4}', '{5}'", PackageProviderName, name, requiredVersion, minimumVersion, maximumVersion, id);
 			SemanticVersion min, max, actual;
 			if (string.IsNullOrEmpty(minimumVersion) || !SemanticVersion.TryParse(minimumVersion, out min))
 			{
@@ -307,7 +307,7 @@ namespace OneGet
 		public void FindPackageByFile(string file, int id, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::FindPackageByFile' '{1}','{2}'", PackageProviderName, file, id);
+			request.Debug("Entering '{0}::FindPackageByFile' '{1}','{2}'", PackageProviderName, file, id);
 
 			// TODO: implement searching for a package by analyzing the package file, or remove this method
 		}
@@ -325,7 +325,7 @@ namespace OneGet
 		public void FindPackageByUri(Uri uri, int id, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::FindPackageByUri' '{1}','{2}'", PackageProviderName, uri, id);
+			request.Debug("Entering '{0}::FindPackageByUri' '{1}','{2}'", PackageProviderName, uri, id);
 
 			// TODO: implement searching for a package by it's unique uri (or remove this method)
 		}
@@ -339,12 +339,12 @@ namespace OneGet
 		public void DownloadPackage(string fastPackageReference, string location, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::DownloadPackage' '{1}','{2}'", PackageProviderName, fastPackageReference, location);
+			request.Debug("Entering '{0}::DownloadPackage' '{1}','{2}'", PackageProviderName, fastPackageReference, location);
 
 			// TODO: actually download the package ...
 
 		}
-
+	
 		/// <summary>
 		/// Returns package references for all the dependent packages
 		/// </summary>
@@ -353,7 +353,7 @@ namespace OneGet
 		public void GetPackageDependencies(string fastPackageReference, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::GetPackageDependencies' '{1}'", PackageProviderName, fastPackageReference);
+			request.Debug("Entering '{0}::GetPackageDependencies' '{1}'", PackageProviderName, fastPackageReference);
 
 			// TODO: check dependencies
 
@@ -368,8 +368,8 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void InstallPackage(string fastPackageReference, Request request)
 		{
-			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::InstallPackage' '{1}'", PackageProviderName, fastPackageReference);
+			request.Debug("Entering '{0}::InstallPackage' '{1}'", PackageProviderName, fastPackageReference);
+
 			var packages = _chocolatey.Set(conf =>
 			{
 				conf.CommandName = "Install";
@@ -392,7 +392,7 @@ namespace OneGet
 		public void UninstallPackage(string fastPackageReference, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::UninstallPackage' '{1}'", PackageProviderName, fastPackageReference);
+			request.Debug("Entering '{0}::UninstallPackage' '{1}'", PackageProviderName, fastPackageReference);
 
 			// TODO: Uninstall the package 
 		}
@@ -405,7 +405,7 @@ namespace OneGet
 		public void GetInstalledPackages(string name, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::GetInstalledPackages' '{1}'", PackageProviderName, name);
+			request.Debug("Entering '{0}::GetInstalledPackages' '{1}'", PackageProviderName, name);
 
 			foreach (var package in _chocolatey.Set(conf =>
 			{
@@ -437,7 +437,7 @@ namespace OneGet
 		public void GetPackageDetails(string fastPackageReference, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::GetPackageDetails' '{1}'", PackageProviderName, fastPackageReference);
+			request.Debug("Entering '{0}::GetPackageDetails' '{1}'", PackageProviderName, fastPackageReference);
 
 			// TODO: This method is for fetching details that are more expensive than FindPackage* (if you don't need that, remove this method)
 		}
@@ -450,7 +450,7 @@ namespace OneGet
 		public int StartFind(Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::StartFind'", PackageProviderName);
+			request.Debug("Entering '{0}::StartFind'", PackageProviderName);
 
 			// TODO: batch search implementation
 			return default(int);
@@ -465,9 +465,9 @@ namespace OneGet
 		public void CompleteFind(int id, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::CompleteFind' '{1}'", PackageProviderName, id);
+			request.Debug("Entering '{0}::CompleteFind' '{1}'", PackageProviderName, id);
 			// TODO: batch search implementation
 		}
-
+	
 	}
 }
