@@ -22,6 +22,7 @@ namespace OneGet.Sdk {
         public static string[] Empty = new string[0];
 
         public static partial class Features {
+            public const string Test = "test-only";
             public const string AutomationOnly = "automation-only";
             public const string MagicSignatures = "magic-signatures";
             public const string SupportedExtensions = "file-extensions";
