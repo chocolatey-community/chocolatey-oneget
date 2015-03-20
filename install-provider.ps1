@@ -25,13 +25,13 @@ $srcpath = $provider.Fullname
 $filename = $provider.Name
 
 
-$output = "$env:localappdata\oneget\providerassemblies\$fileName"
+$output = "$env:localappdata\PackageManagement\providerassemblies\$fileName"
 if( test-path $output ) {
     write-host -fore white "Deleting old provider from `n   '$output' `n"
     # delete the old provider assembly
     # even if it's in use.
     $tmpName = "$filename.delete-me.$(get-random)"
-    $tmpPath = "$env:localappdata\oneget\providerassemblies\$tmpName"
+    $tmpPath = "$env:localappdata\PackageManagement\providerassemblies\$tmpName"
     
     ren $output $tmpName -force -ea SilentlyContinue 
     erase -force -ea SilentlyContinue $tmpPath

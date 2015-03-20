@@ -95,6 +95,6 @@ streams.exe
 /attic/
 policheck*
 *.orig
-OneGet.orig.sln
+*.orig.sln
 *pingme*
 .nuget

@@ -8,7 +8,7 @@ Quick and dirty instructions:
 
 ###  Requires: 
     - vs 2013 
-    - YOU MUST BE RUNNING THE Experimental build of ONEGET : http://oneget.org/install-oneget.exe 
+    - YOU MUST BE RUNNING THE Experimental build of OneGet : http://oneget.org/install-oneget.exe 
 
 ### procedure
 - fork the project at https://github.com/OneGet/ProviderSdk to your own account
