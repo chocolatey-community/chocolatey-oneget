@@ -46,39 +46,9 @@ namespace PackageManagement.Sdk {
 
             IEnumerable<string> UnpackArchive(string localFilename, string destinationFolder, Request requestObject);
 
-            void AddPinnedItemToTaskbar(string item, Request requestObject);
-
-            void RemovePinnedItemFromTaskbar(string item, Request requestObject);
-
-            void CreateShortcutLink(string linkPath, string targetPath, string description, string workingDirectory, string arguments, Request requestObject);
-
-            void SetEnvironmentVariable(string variable, string value, string context, Request requestObject);
-
-            void RemoveEnvironmentVariable(string variable, string context, Request requestObject);
-
-            void CopyFile(string sourcePath, string destinationPath, Request requestObject);
-
-            void Delete(string path, Request requestObject);
-
-            void DeleteFolder(string folder, Request requestObject);
-
-            void CreateFolder(string folder, Request requestObject);
-
-            void DeleteFile(string filename, Request requestObject);
-
-            string GetKnownFolder(string knownFolder, Request requestObject);
-
-            string CanonicalizePath(string text, string currentDirectory);
-
-            bool FileExists(string path);
-
-            bool DirectoryExists(string path);
-
             bool Install(string fileName, string additionalArgs, Request requestObject);
 
             bool IsSignedAndTrusted(string filename, Request requestObject);
-
-            bool ExecuteElevatedAction(string provider, string payload, Request requestObject);
         }
 
         public interface IPackageProvider {
