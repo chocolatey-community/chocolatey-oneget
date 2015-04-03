@@ -12,20 +12,18 @@
 //  limitations under the License.
 //  
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using chocolatey;
-using chocolatey.infrastructure.app.configuration;
-using chocolatey.infrastructure.app.domain;
-using OneGet.Sdk;
-
-namespace OneGet
+namespace PackageManagement
 {
-	using System.IO;
+	using chocolatey;
+	using chocolatey.infrastructure.app.configuration;
+	using chocolatey.infrastructure.app.domain;
 	using chocolatey.infrastructure.results;
 	using NuGet;
+	using Sdk;
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
 	using Constants = Sdk.Constants;
 
 	/// <summary>
