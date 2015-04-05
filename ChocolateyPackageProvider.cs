@@ -46,17 +46,13 @@ namespace PackageManagement
 		
 			// you can list the URL schemes that you support searching for packages with
 			{ Constants.Features.SupportedSchemes, new [] {"http", "https", "file"}},
-#if FOR_EXAMPLE 
-			// add this if you want to 'hide' your provider by default.
-			{ Constants.Features.AutomationOnly, Constants.FeaturePresent },
-#endif
+
 			// you can list the magic signatures (bytes at the beginning of a file) that we can use 
 			// to peek and see if a given file is yours.
 			{ Constants.Features.MagicSignatures, Constants.Signatures.ZipVariants},
 		};
 
 		private GetChocolatey _chocolatey;
-
 
 		/// <summary>
 		/// Returns the name of the Provider. 
@@ -169,31 +165,7 @@ namespace PackageManagement
 			// TODO: improve this debug message that tells us what's going on.
 			request.Debug("Entering '{0}::ResolvePackageSources'", PackageProviderName);
 
-			IEnumerable<ChocolateySource> sources;
-			if (request.Sources.Any())
-			{
-				// the system is requesting sources that match the values passed.
-				// if the value passed can be a legitimate source, but is not registered, return a package source marked unregistered.
-				sources = _chocolatey.Set(conf =>
-				{
-					conf.CommandName = "Source";
-					conf.SourceCommand.Command = SourceCommandType.list;
-					conf.Sources = request.Sources.@join(";");
-					conf.AllowUnofficialBuild = true;
-				}).List<ChocolateySource>();
-			}
-			else
-			{
-				// the system is requesting all the registered sources
-				sources = _chocolatey.Set(conf =>
-				{
-					conf.CommandName = "Source";
-					conf.SourceCommand.Command = SourceCommandType.list;
-					conf.AllowUnofficialBuild = true;
-				}).List<ChocolateySource>();
-			}
-
-			foreach (var source in sources)
+			foreach (var source in GetSource(request.Sources.ToArray()))
 			{
 				request.YieldPackageSource(source.Id, source.Value, false, source.Authenticated, false);
 			}
@@ -209,6 +181,7 @@ namespace PackageManagement
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void AddPackageSource(string name, string location, bool trusted, Request request)
 		{
+			// TODO: Make chocolatey store "trusted" property on the sources
 			request.Debug("Entering {0} source add -n={1} -s'{2}' (we don't support trusted = '{3}')", PackageProviderName, name,
 				location, trusted);
 
@@ -257,40 +230,104 @@ namespace PackageManagement
 		public void FindPackage(string name, string requiredVersion, string minimumVersion, string maximumVersion, int id, Request request)
 		{
 			request.Debug("Entering '{0}::FindPackage' '{1}','{2}','{3}','{4}', '{5}'", PackageProviderName, name, requiredVersion, minimumVersion, maximumVersion, id);
-			SemanticVersion min, max, actual;
-			if (string.IsNullOrEmpty(minimumVersion) || !SemanticVersion.TryParse(minimumVersion, out min))
-			{
-				min = new SemanticVersion(default(Version));
-			}
-			if (string.IsNullOrEmpty(maximumVersion) || !SemanticVersion.TryParse(maximumVersion, out max))
-			{
-				max = new SemanticVersion(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
-			}
+			request.Debug("FindPackage:: " + request.PackageSources.@join("|"));
+			var versions = ParseVersion(requiredVersion, minimumVersion, maximumVersion);
 		
+			var sources = GetSource(request.PackageSources.ToArray());
+			// TODO: need to support URLs for sources ... 
 			foreach(var package in _chocolatey.Set(conf =>
 				{
 					conf.CommandName = "List";
 					conf.Input = name;
+					conf.Sources = sources.Select(cs => cs.Value).@join(";");
 					conf.Version = requiredVersion;
 					conf.AllowUnofficialBuild = true;
 				}).List<PackageResult>())
 			{
-				if (SemanticVersion.TryParse(package.Version, out actual) && (actual < min || actual > max))
+				SemanticVersion actual;
+				if (SemanticVersion.TryParse(package.Version, out actual) && (actual < versions.Item1 || actual > versions.Item2))
 				{
 					continue;
 				}
-				var fastPath = package.Package.GetFullName(); // string.Format("{0} {1}", package.Package.Id, package.Version);
-				var fileName = string.Format("{0}.{1}.nupkg", package.Package.Id, package.Version);
-				request.YieldSoftwareIdentity(
-					fastPath,	// this should be what we need to figure out how to find the package again
-					package.Package.Id,	// this is the friendly name of the package
-					package.Version, "semver",	// the version and version scheme
-					package.Package.Summary ?? package.Package.Description,	// the summary (sometimes NuGet puts it in Description?)
-					package.Source,	// the package SOURCE name
-					name,	// the search that returned this package
-					package.SourceUri,	// the full path to the file (if it's available)
-					fileName);	// a file name in case they want to download it...
+				request.YieldSoftwareIdentity(package);
 			}
+		}
+
+		private static Tuple<SemanticVersion,SemanticVersion> ParseVersion(string requiredVersion, string minimumVersion, string maximumVersion)
+		{
+			SemanticVersion min, max, actual;
+
+			if (!string.IsNullOrEmpty(requiredVersion) && SemanticVersion.TryParse(requiredVersion, out actual))
+			{
+				min = max = actual;
+			}
+			else
+			{
+				if (string.IsNullOrEmpty(minimumVersion) || !SemanticVersion.TryParse(minimumVersion, out min))
+				{
+					min = new SemanticVersion(new Version());
+				}
+				if (string.IsNullOrEmpty(maximumVersion) || !SemanticVersion.TryParse(maximumVersion, out max))
+				{
+					max = new SemanticVersion(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
+				}
+			}
+			return new Tuple<SemanticVersion, SemanticVersion>(min, max);
+		}
+
+
+		private IEnumerable<ChocolateySource> GetSource(params string[] names)
+		{
+			IEnumerable<ChocolateySource> sources;
+			if (names.Any())
+			{
+				var all = new List<ChocolateySource>();
+				// the system is requesting sources that match the values passed.
+				// if the value passed can be a legitimate source, but is not registered, return a package source marked unregistered.
+
+				all.AddRange( _chocolatey.Set(conf =>
+				{
+					conf.CommandName = "Source";
+					conf.SourceCommand.Command = SourceCommandType.list;
+					conf.Sources = names.@join(";");
+					conf.AllowUnofficialBuild = true;
+				}).List<ChocolateySource>().Where(source => names.Any(name => name == source.Id || name == source.Value)));
+
+				if (!all.Any())
+				{
+					foreach (var n in names)
+					{
+						string name = n;
+						var s = _chocolatey.Set(conf =>
+						{
+							conf.CommandName = "Source";
+							conf.SourceCommand.Command = SourceCommandType.list;
+							conf.Sources = name;
+							conf.AllowUnofficialBuild = true;
+						}).List<ChocolateySource>().Where(source => name == source.Id || name == source.Value).ToList();
+						if (!s.Any())
+						{
+							all.Add(new ChocolateySource {Id = name, Value = name});
+						}
+						else
+						{
+							all.AddRange(s);
+						}
+					}
+				}
+				sources = all;
+			}
+			else
+			{
+				// the system is requesting all the registered sources
+				sources = _chocolatey.Set(conf =>
+				{
+					conf.CommandName = "Source";
+					conf.SourceCommand.Command = SourceCommandType.list;
+					conf.AllowUnofficialBuild = true;
+				}).List<ChocolateySource>();
+			}
+			return sources;
 		}
 
 /*
@@ -367,21 +404,29 @@ namespace PackageManagement
 		public void InstallPackage(string fastPackageReference, Request request)
 		{
 			request.Debug("Entering '{0}::InstallPackage' '{1}'", PackageProviderName, fastPackageReference);
+			var parts = fastPackageReference.Split(RequestHelper.NullChar);
+			var force = false;
+		
+			var forceStr = request.GetOptionValue("Force");
+			if (!string.IsNullOrEmpty(forceStr))
+			{
+				bool.TryParse(forceStr, out force);
+			}
 
-			var packages = _chocolatey.Set(conf =>
+			foreach (var package in  _chocolatey.Set(conf =>
 			{
 				conf.CommandName = "Install";
-				conf.PackageNames = fastPackageReference;
-				//conf.Version = requiredVersion;
+				conf.Sources = GetSource(parts[0]).Select(cs => cs.Value).@join(";");
+				conf.PackageNames = parts[1];
+				conf.Version = parts[2];
 				conf.AllowUnofficialBuild = true;
-			}).List<PackageResult>();
-
-			foreach (var package in packages)
+				conf.Force = force;
+			}).List<PackageResult>())
 			{
-				request.YieldSoftwareIdentity(package.Package.Id, package.Package.Title, package.Version, "Semantic", package.Package.Summary, PackageProviderName, fastPackageReference, "", package.InstallLocation);
+				request.YieldSoftwareIdentity(package);
 			}
 		}
-
+	
 		/// <summary>
 		/// Uninstalls a package 
 		/// </summary>
@@ -389,21 +434,39 @@ namespace PackageManagement
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void UninstallPackage(string fastPackageReference, Request request)
 		{
-			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Entering '{0}::UninstallPackage' '{1}'", PackageProviderName, fastPackageReference);
-
-			// TODO: Uninstall the package 
+			// TODO: improve this debug message that tells us what's going on (what about the dynamic parameters)
+			var parts = fastPackageReference.Split(RequestHelper.NullChar);
+			request.Debug("Entering '{0}::UninstallPackage' '{1}'", PackageProviderName, parts.@join("' '"));
+		
+			// TODO: add dynamic parameters for AllVersions and ForceDependencies
+			foreach (var package in _chocolatey.Set(conf =>
+			{
+				conf.CommandName = "Uninstall";
+				//conf.Sources = parts[0];
+				conf.PackageNames = parts[1];
+				conf.Version = parts[2];
+			}).List<PackageResult>())
+			{
+				request.YieldSoftwareIdentity(package);
+			}
 		}
 
 		/// <summary>
-		/// 
+		/// Returns the packages that are installed
 		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
-		public void GetInstalledPackages(string name, Request request)
+		/// <param name="name">the package name to match. Empty or null means match everything</param>
+		/// <param name="requiredVersion">the specific version asked for. If this parameter is specified (ie, not null or empty string) then the minimum and maximum values are ignored</param>
+		/// <param name="minimumVersion">the minimum version of packages to return . If the <code>requiredVersion</code> parameter is specified (ie, not null or empty string) this should be ignored</param>
+		/// <param name="maximumVersion">the maximum version of packages to return . If the <code>requiredVersion</code> parameter is specified (ie, not null or empty string) this should be ignored</param>
+		/// <param name="request">
+		///     An object passed in from the CORE that contains functions that can be used to interact with
+		///     the CORE and HOST
+		/// </param>
+		public void GetInstalledPackages(string name, string requiredVersion, string minimumVersion, string maximumVersion, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Entering '{0}::GetInstalledPackages' '{1}'", PackageProviderName, name);
+			request.Debug("Entering '{0}::GetInstalledPackages' '{1}' '{2}' '{3}' '{4}'", PackageProviderName, name, requiredVersion, minimumVersion, maximumVersion);
+			var versions = ParseVersion(requiredVersion, minimumVersion, maximumVersion);
 
 			foreach (var package in _chocolatey.Set(conf =>
 			{
@@ -413,20 +476,16 @@ namespace PackageManagement
 				conf.AllowUnofficialBuild = true;
 			}).List<PackageResult>())
 			{
-				var fastPath = package.Package.GetFullName(); // string.Format("{0} {1}", package.Package.Id, package.Version);
-				var fileName = string.Format("{0}.{1}.nupkg", package.Package.Id, package.Version);
-				request.YieldSoftwareIdentity(
-					fastPath,	// this should be what we need to figure out how to find the package again
-					package.Package.Id,	// this is the friendly name of the package
-					package.Version, "semver",	// the version and version scheme
-					package.Package.Summary ?? package.Package.Description,	// the summary (sometimes NuGet puts it in Description?)
-					package.Source,	// the package SOURCE name
-					name,	// the search that returned this package
-					package.SourceUri,	// the full path to the file (if it's available)
-					fileName);	// a file name in case they want to download it...
+				SemanticVersion actual;
+				if (SemanticVersion.TryParse(package.Version, out actual) && (actual < versions.Item1 || actual > versions.Item2))
+				{
+					continue;
+				}
+				request.YieldSoftwareIdentity(package);
 			}
 		}
 
+/*
 		/// <summary>
 		/// 
 		/// </summary>
@@ -466,6 +525,6 @@ namespace PackageManagement
 			request.Debug("Entering '{0}::CompleteFind' '{1}'", PackageProviderName, id);
 			// TODO: batch search implementation
 		}
-	
+*/
 	}
 }
