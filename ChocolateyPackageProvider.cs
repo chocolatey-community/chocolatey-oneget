@@ -12,20 +12,26 @@
 //  limitations under the License.
 //  
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using OneGet.Sdk;
-
-namespace OneGet
+namespace PackageManagement
 {
+	using chocolatey;
+	using chocolatey.infrastructure.app.configuration;
+	using chocolatey.infrastructure.app.domain;
+	using chocolatey.infrastructure.results;
+	using NuGet;
+	using Sdk;
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Linq;
+	using Constants = Sdk.Constants;
+
 	/// <summary>
 	/// A Package provider for OneGet.
 	/// 
 	/// Important notes:
 	///	- Required Methods: Not all methods are required; some package providers do not support some features. If the methods isn't used or implemented it should be removed (or commented out)
-	///	- Error Handling: Avoid throwing exceptions from these methods. To properly return errors to the user, use the request.Error(...) method to notify the user of an error conditionm and then return.
+	///	- Error Handling: Avoid throwing exceptions from these methods. To properly return errors to the user, use the request.Error(...) method to notify the user of an error condition and then return.
 	/// </summary>
 	public class ChocolateyPackageProvider
 	{
@@ -40,15 +46,12 @@ namespace OneGet
 		
 			// you can list the URL schemes that you support searching for packages with
 			{ Constants.Features.SupportedSchemes, new [] {"http", "https", "file"}},
-#if FOR_EXAMPLE 
-			// add this if you want to 'hide' your provider by default.
-			{ Constants.Features.AutomationOnly, Constants.FeaturePresent },
-#endif
 			// you can list the magic signatures (bytes at the beginning of a file) that we can use 
 			// to peek and see if a given file is yours.
 			{ Constants.Features.MagicSignatures, Constants.Signatures.ZipVariants},
 		};
 
+		private GetChocolatey _chocolatey;
 
 		/// <summary>
 		/// Returns the name of the Provider. 
@@ -69,7 +72,7 @@ namespace OneGet
 		{
 			get
 			{
-				return "1.0.0.0";
+				return "3.0.0.0";
 			}
 		}
 
@@ -88,24 +91,8 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void InitializeProvider(Request request)
 		{
-			// TODO: improve this debug message that tells what's going on.
-			request.Debug("Calling '{0}::InitializeProvider'", PackageProviderName);
-			// TODO: add any one-time initialization code here, or remove this method
-		}
-
-		/// <summary>
-		/// Returns a collection of strings to the client advertizing features this provider supports.
-		/// </summary>
-		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
-		public void GetFeatures(Request request)
-		{
-			// TODO: improve this debug message that tells what's going on.
-			request.Debug("Calling '{0}::GetFeatures' ", PackageProviderName);
-
-			foreach (var feature in Features)
-			{
-				request.Yield(feature);
-			}
+			request.Debug("Entering '{0}::InitializeProvider' to set up a chocolatey with custom logging", PackageProviderName);
+			_chocolatey = Lets.GetChocolatey().SetCustomLogging(new RequestLogger(request));
 		}
 
 		/// <summary>
@@ -120,7 +107,7 @@ namespace OneGet
 		public void GetDynamicOptions(string category, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::GetDynamicOptions' {1}", PackageProviderName, category);
+			request.Debug("Entering '{0}::GetDynamicOptions' {1}", PackageProviderName, category);
 
 			switch ((category ?? string.Empty).ToLowerInvariant())
 			{
@@ -150,6 +137,21 @@ namespace OneGet
 		}
 
 		/// <summary>
+		/// Returns a collection of strings to the client advertizing features this provider supports.
+		/// </summary>
+		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
+		public void GetFeatures(Request request)
+		{
+			request.Debug("Entering '{0}::GetFeatures' ", PackageProviderName);
+
+			foreach (var feature in Features)
+			{
+				request.Yield(feature);
+			}
+		}
+
+		#region Sources
+		/// <summary>
 		/// Resolves and returns Package Sources to the client.
 		/// 
 		/// Specified sources are passed in via the request object (<c>request.GetSources()</c>). 
@@ -160,17 +162,11 @@ namespace OneGet
 		public void ResolvePackageSources(Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::ResolvePackageSources'", PackageProviderName);
+			request.Debug("Entering '{0}::ResolvePackageSources'", PackageProviderName);
 
-			// TODO: resolve package sources
-			if (request.Sources.Any())
+			foreach (var source in GetSource(request.Sources.ToArray()))
 			{
-				// the system is requesting sources that match the values passed.
-				// if the value passed can be a legitimate source, but is not registered, return a package source marked unregistered.
-			}
-			else
-			{
-				// the system is requesting all the registered sources
+				request.YieldPackageSource(source.Id, source.Value, false, source.Authenticated, false);
 			}
 		}
 
@@ -184,10 +180,18 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void AddPackageSource(string name, string location, bool trusted, Request request)
 		{
-			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::AddPackageSource' '{1}','{2}','{3}'", PackageProviderName, name, location, trusted);
+			// TODO: Make chocolatey store "trusted" property on the sources
+			request.Debug("Entering {0} source add -n={1} -s'{2}' (we don't support trusted = '{3}')", PackageProviderName, name,
+				location, trusted);
 
-			// TODO: support user-defined package sources OR remove this method
+			_chocolatey.Set(conf =>
+			{
+				conf.CommandName = "Source";
+				conf.SourceCommand.Command = SourceCommandType.add;
+				conf.SourceCommand.Name = name;
+				conf.Sources = location;
+				conf.AllowUnofficialBuild = true;
+			}).Run();
 		}
 
 		/// <summary>
@@ -197,12 +201,19 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void RemovePackageSource(string name, Request request)
 		{
-			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::RemovePackageSource' '{1}'", PackageProviderName, name);
+			request.Debug("Entering {0} source remove -n={1})", PackageProviderName, name);
 
+			_chocolatey.Set(conf =>
+			{
+				conf.CommandName = "Source";
+				conf.SourceCommand.Command = SourceCommandType.remove;
+				conf.SourceCommand.Name = name;
+				conf.AllowUnofficialBuild = true;
+			}).Run();
 			// TODO: support user-defined package sources OR remove this method
 		}
 
+		#endregion
 
 		/// <summary>
 		/// Searches package sources given name and version information 
@@ -217,12 +228,108 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void FindPackage(string name, string requiredVersion, string minimumVersion, string maximumVersion, int id, Request request)
 		{
-			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::FindPackage' '{1}','{2}','{3}','{4}'", PackageProviderName, requiredVersion, minimumVersion, maximumVersion, id);
-
-			// TODO: find package by name (and version) or id...
+			request.Debug("Entering '{0}::FindPackage' '{1}','{2}','{3}','{4}', '{5}'", PackageProviderName, name, requiredVersion, minimumVersion, maximumVersion, id);
+			request.Debug("FindPackage:: " + request.PackageSources.@join("|"));
+			var versions = ParseVersion(requiredVersion, minimumVersion, maximumVersion);
+		
+			var sources = GetSource(request.PackageSources.ToArray());
+			// TODO: need to support URLs for sources ... 
+			foreach(var package in _chocolatey.Set(conf =>
+				{
+					conf.CommandName = "List";
+					conf.Input = name;
+					conf.Sources = sources.Select(cs => cs.Value).@join(";");
+					conf.Version = requiredVersion;
+					conf.AllowUnofficialBuild = true;
+				}).List<PackageResult>())
+			{
+				SemanticVersion actual;
+				if (SemanticVersion.TryParse(package.Version, out actual) && (actual < versions.Item1 || actual > versions.Item2))
+				{
+					continue;
+				}
+				request.YieldSoftwareIdentity(package);
+			}
 		}
 
+		private static Tuple<SemanticVersion,SemanticVersion> ParseVersion(string requiredVersion, string minimumVersion, string maximumVersion)
+		{
+			SemanticVersion min, max, actual;
+
+			if (!string.IsNullOrEmpty(requiredVersion) && SemanticVersion.TryParse(requiredVersion, out actual))
+			{
+				min = max = actual;
+			}
+			else
+			{
+				if (string.IsNullOrEmpty(minimumVersion) || !SemanticVersion.TryParse(minimumVersion, out min))
+				{
+					min = new SemanticVersion(new Version());
+				}
+				if (string.IsNullOrEmpty(maximumVersion) || !SemanticVersion.TryParse(maximumVersion, out max))
+				{
+					max = new SemanticVersion(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
+				}
+			}
+			return new Tuple<SemanticVersion, SemanticVersion>(min, max);
+		}
+
+
+		private IEnumerable<ChocolateySource> GetSource(params string[] names)
+		{
+			IEnumerable<ChocolateySource> sources;
+			if (names.Any())
+			{
+				var all = new List<ChocolateySource>();
+				// the system is requesting sources that match the values passed.
+				// if the value passed can be a legitimate source, but is not registered, return a package source marked unregistered.
+
+				all.AddRange( _chocolatey.Set(conf =>
+				{
+					conf.CommandName = "Source";
+					conf.SourceCommand.Command = SourceCommandType.list;
+					conf.Sources = names.@join(";");
+					conf.AllowUnofficialBuild = true;
+				}).List<ChocolateySource>().Where(source => names.Any(name => name == source.Id || name == source.Value)));
+
+				if (!all.Any())
+				{
+					foreach (var n in names)
+					{
+						string name = n;
+						var s = _chocolatey.Set(conf =>
+						{
+							conf.CommandName = "Source";
+							conf.SourceCommand.Command = SourceCommandType.list;
+							conf.Sources = name;
+							conf.AllowUnofficialBuild = true;
+						}).List<ChocolateySource>().Where(source => name == source.Id || name == source.Value).ToList();
+						if (!s.Any())
+						{
+							all.Add(new ChocolateySource {Id = name, Value = name});
+						}
+						else
+						{
+							all.AddRange(s);
+						}
+					}
+				}
+				sources = all;
+			}
+			else
+			{
+				// the system is requesting all the registered sources
+				sources = _chocolatey.Set(conf =>
+				{
+					conf.CommandName = "Source";
+					conf.SourceCommand.Command = SourceCommandType.list;
+					conf.AllowUnofficialBuild = true;
+				}).List<ChocolateySource>();
+			}
+			return sources;
+		}
+
+/*
 		/// <summary>
 		/// Finds packages given a locally-accessible filename
 		/// 
@@ -234,7 +341,7 @@ namespace OneGet
 		public void FindPackageByFile(string file, int id, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::FindPackageByFile' '{1}','{2}'", PackageProviderName, file, id);
+			request.Debug("Entering '{0}::FindPackageByFile' '{1}','{2}'", PackageProviderName, file, id);
 
 			// TODO: implement searching for a package by analyzing the package file, or remove this method
 		}
@@ -252,7 +359,7 @@ namespace OneGet
 		public void FindPackageByUri(Uri uri, int id, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::FindPackageByUri' '{1}','{2}'", PackageProviderName, uri, id);
+			request.Debug("Entering '{0}::FindPackageByUri' '{1}','{2}'", PackageProviderName, uri, id);
 
 			// TODO: implement searching for a package by it's unique uri (or remove this method)
 		}
@@ -266,12 +373,12 @@ namespace OneGet
 		public void DownloadPackage(string fastPackageReference, string location, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::DownloadPackage' '{1}','{2}'", PackageProviderName, fastPackageReference, location);
+			request.Debug("Entering '{0}::DownloadPackage' '{1}','{2}'", PackageProviderName, fastPackageReference, location);
 
 			// TODO: actually download the package ...
 
 		}
-
+	
 		/// <summary>
 		/// Returns package references for all the dependent packages
 		/// </summary>
@@ -280,13 +387,13 @@ namespace OneGet
 		public void GetPackageDependencies(string fastPackageReference, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::GetPackageDependencies' '{1}'", PackageProviderName, fastPackageReference);
+			request.Debug("Entering '{0}::GetPackageDependencies' '{1}'", PackageProviderName, fastPackageReference);
 
 			// TODO: check dependencies
 
 		}
 
-
+*/
 
 		/// <summary>
 		/// Installs a given package.
@@ -295,12 +402,30 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void InstallPackage(string fastPackageReference, Request request)
 		{
-			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::InstallPackage' '{1}'", PackageProviderName, fastPackageReference);
+			request.Debug("Entering '{0}::InstallPackage' '{1}'", PackageProviderName, fastPackageReference);
+			var parts = fastPackageReference.Split(RequestHelper.NullChar);
+			var force = false;
+		
+			var forceStr = request.GetOptionValue("Force");
+			if (!string.IsNullOrEmpty(forceStr))
+			{
+				bool.TryParse(forceStr, out force);
+			}
 
-			// TODO: Install the package 
+			foreach (var package in  _chocolatey.Set(conf =>
+			{
+				conf.CommandName = "Install";
+				conf.Sources = GetSource(parts[0]).Select(cs => cs.Value).@join(";");
+				conf.PackageNames = parts[1];
+				conf.Version = parts[2];
+				conf.AllowUnofficialBuild = true;
+				conf.Force = force;
+			}).List<PackageResult>())
+			{
+				request.YieldSoftwareIdentity(package);
+			}
 		}
-
+	
 		/// <summary>
 		/// Uninstalls a package 
 		/// </summary>
@@ -308,25 +433,58 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void UninstallPackage(string fastPackageReference, Request request)
 		{
-			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::UninstallPackage' '{1}'", PackageProviderName, fastPackageReference);
-
-			// TODO: Uninstall the package 
+			// TODO: improve this debug message that tells us what's going on (what about the dynamic parameters)
+			var parts = fastPackageReference.Split(RequestHelper.NullChar);
+			request.Debug("Entering '{0}::UninstallPackage' '{1}'", PackageProviderName, parts.@join("' '"));
+		
+			// TODO: add dynamic parameters for AllVersions and ForceDependencies
+			foreach (var package in _chocolatey.Set(conf =>
+			{
+				conf.CommandName = "Uninstall";
+				//conf.Sources = parts[0];
+				conf.PackageNames = parts[1];
+				conf.Version = parts[2];
+			}).List<PackageResult>())
+			{
+				request.YieldSoftwareIdentity(package);
+			}
 		}
 
 		/// <summary>
-		/// 
+		/// Returns the packages that are installed
 		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
-		public void GetInstalledPackages(string name, Request request)
+		/// <param name="name">the package name to match. Empty or null means match everything</param>
+		/// <param name="requiredVersion">the specific version asked for. If this parameter is specified (ie, not null or empty string) then the minimum and maximum values are ignored</param>
+		/// <param name="minimumVersion">the minimum version of packages to return . If the <code>requiredVersion</code> parameter is specified (ie, not null or empty string) this should be ignored</param>
+		/// <param name="maximumVersion">the maximum version of packages to return . If the <code>requiredVersion</code> parameter is specified (ie, not null or empty string) this should be ignored</param>
+		/// <param name="request">
+		///     An object passed in from the CORE that contains functions that can be used to interact with
+		///     the CORE and HOST
+		/// </param>
+		public void GetInstalledPackages(string name, string requiredVersion, string minimumVersion, string maximumVersion, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::GetInstalledPackages' '{1}'", PackageProviderName, name);
+			request.Debug("Entering '{0}::GetInstalledPackages' '{1}' '{2}' '{3}' '{4}'", PackageProviderName, name, requiredVersion, minimumVersion, maximumVersion);
+			var versions = ParseVersion(requiredVersion, minimumVersion, maximumVersion);
 
-			// TODO: list all installed packages
+			foreach (var package in _chocolatey.Set(conf =>
+			{
+				conf.CommandName = "List";
+				conf.Input = name;
+				conf.ListCommand.LocalOnly = true;
+				conf.AllowUnofficialBuild = true;
+			}).List<PackageResult>())
+			{
+				SemanticVersion actual;
+				if (SemanticVersion.TryParse(package.Version, out actual) && (actual < versions.Item1 || actual > versions.Item2))
+				{
+					continue;
+				}
+				request.YieldSoftwareIdentity(package);
+			}
 		}
 
+/*
 		/// <summary>
 		/// 
 		/// </summary>
@@ -335,7 +493,7 @@ namespace OneGet
 		public void GetPackageDetails(string fastPackageReference, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::GetPackageDetails' '{1}'", PackageProviderName, fastPackageReference);
+			request.Debug("Entering '{0}::GetPackageDetails' '{1}'", PackageProviderName, fastPackageReference);
 
 			// TODO: This method is for fetching details that are more expensive than FindPackage* (if you don't need that, remove this method)
 		}
@@ -348,7 +506,7 @@ namespace OneGet
 		public int StartFind(Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::StartFind'", PackageProviderName);
+			request.Debug("Entering '{0}::StartFind'", PackageProviderName);
 
 			// TODO: batch search implementation
 			return default(int);
@@ -363,9 +521,9 @@ namespace OneGet
 		public void CompleteFind(int id, Request request)
 		{
 			// TODO: improve this debug message that tells us what's going on.
-			request.Debug("Calling '{0}::CompleteFind' '{1}'", PackageProviderName, id);
+			request.Debug("Entering '{0}::CompleteFind' '{1}'", PackageProviderName, id);
 			// TODO: batch search implementation
 		}
-
+*/
 	}
 }
