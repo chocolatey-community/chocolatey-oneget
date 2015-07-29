@@ -42,7 +42,7 @@ Then:
 > get-packageprovider 
 
 PS C:\root\oneget\output\v45\Debug\bin> get-packageprovider
-WARNING: MSG:ProviderSwidtagUnavailable
+
 
 Name                     Version          DynamicOptions
 ----                     -------          --------------
