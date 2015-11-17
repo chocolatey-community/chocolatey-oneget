@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using OneGet.Sdk;
+using chocolatey;
 
 namespace OneGet
 {
@@ -174,9 +175,9 @@ namespace OneGet
 				// the system is requesting all the registered sources
 			}
 		}
+        #endregion
 
-
-		/// <summary>
+        /// <summary>
 		/// This is called when the user is adding (or updating) a package source
 		/// </summary>
 		/// <param name="name">The name of the package source. If this parameter is null or empty the PROVIDER should use the location as the name (if the PROVIDER actually stores names of package sources)</param>
