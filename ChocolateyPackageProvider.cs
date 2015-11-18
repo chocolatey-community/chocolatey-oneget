@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using OneGet.Sdk;
+using chocolatey;
 
 namespace OneGet
 {
@@ -48,6 +49,8 @@ namespace OneGet
 			// to peek and see if a given file is yours.
 			{ Constants.Features.MagicSignatures, Constants.Signatures.ZipVariants},
 		};
+
+		private GetChocolatey _chocolatey;
 
 
 		/// <summary>
@@ -88,24 +91,8 @@ namespace OneGet
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
 		public void InitializeProvider(Request request)
 		{
-			// TODO: improve this debug message that tells what's going on.
-			request.Debug("Calling '{0}::InitializeProvider'", PackageProviderName);
-			// TODO: add any one-time initialization code here, or remove this method
-		}
-
-		/// <summary>
-		/// Returns a collection of strings to the client advertizing features this provider supports.
-		/// </summary>
-		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
-		public void GetFeatures(Request request)
-		{
-			// TODO: improve this debug message that tells what's going on.
-			request.Debug("Calling '{0}::GetFeatures' ", PackageProviderName);
-
-			foreach (var feature in Features)
-			{
-				request.Yield(feature);
-			}
+			request.Debug("Calling '{0}::InitializeProvider' to set up a chocolatey with custom logging", PackageProviderName);
+			_chocolatey = Lets.GetChocolatey().SetCustomLogging(new RequestLogger(request));
 		}
 
 		/// <summary>
@@ -150,6 +137,21 @@ namespace OneGet
 		}
 
 		/// <summary>
+		/// Returns a collection of strings to the client advertizing features this provider supports.
+		/// </summary>
+		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
+		public void GetFeatures(Request request)
+		{
+			request.Debug("Calling '{0}::GetFeatures' ", PackageProviderName);
+
+			foreach (var feature in Features)
+			{
+				request.Yield(feature);
+			}
+		}
+
+		#region Sources
+		/// <summary>
 		/// Resolves and returns Package Sources to the client.
 		/// 
 		/// Specified sources are passed in via the request object (<c>request.GetSources()</c>). 
@@ -173,9 +175,9 @@ namespace OneGet
 				// the system is requesting all the registered sources
 			}
 		}
+        #endregion
 
-
-		/// <summary>
+        /// <summary>
 		/// This is called when the user is adding (or updating) a package source
 		/// </summary>
 		/// <param name="name">The name of the package source. If this parameter is null or empty the PROVIDER should use the location as the name (if the PROVIDER actually stores names of package sources)</param>
