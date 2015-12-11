@@ -160,6 +160,8 @@ namespace PackageManagement.Sdk {
 
         public abstract string AddMetadata(string elementPath, Uri @namespace, string name, string value);
 
+        public abstract string AddTagId(string tagId);
+
         public abstract string AddMeta(string elementPath);
 
         public abstract string AddEntity(string name, string regid, string role, string thumbprint);
