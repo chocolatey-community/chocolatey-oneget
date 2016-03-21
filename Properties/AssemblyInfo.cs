@@ -10,26 +10,26 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-//  
+//
 
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following 
+// General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Chocolatey.OneGet")]
-[assembly: AssemblyDescription("OneGet package provider: Chocolatey")]
+[assembly: AssemblyTitle("Chocolatey.PackageManagement")]
+[assembly: AssemblyDescription("PackageManagement package provider: Chocolatey")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Chocolatey")]
-[assembly: AssemblyProduct("Chocolatey Provider for OneGet")]
+[assembly: AssemblyProduct("Chocolatey Provider for PackageManagement")]
 [assembly: AssemblyCopyright("Copyright Chocolatey © 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
+// Setting ComVisible to false makes the types in this assembly not visible
+// to COM components.  If you need to access a type in this assembly from
 // COM, set the ComVisible attribute to true on that type.
 
 [assembly: ComVisible(false)]

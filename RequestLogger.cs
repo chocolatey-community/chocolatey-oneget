@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using chocolatey.infrastructure.logging;
-using OneGet.Sdk;
+using PackageManagement.Sdk;
 
-namespace OneGet
+namespace PackageManagement
 {
 	public class RequestLogger : ILog
 	{

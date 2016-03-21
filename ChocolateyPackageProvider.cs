@@ -16,10 +16,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using OneGet.Sdk;
+using PackageManagement.Sdk;
 using chocolatey;
 
-namespace OneGet
+namespace PackageManagement
 {
 	/// <summary>
 	/// A Package provider for OneGet.
