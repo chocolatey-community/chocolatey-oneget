@@ -15,7 +15,7 @@ namespace PackageManagement
 		{
 			_request = request;
 		}
-	
+
 		public void InitializeFor(string loggerName)
 		{
 			// TODO: I don't think I'm allowed to do this
@@ -58,7 +58,7 @@ namespace PackageManagement
 		{
 			_request.Error(category, targetObject, message, formatting);
 		}
-	
+
 		public void Error(string message, params object[] formatting)
 		{
 			_request.Error(ErrorCategory.NotSpecified, "", message, formatting);
