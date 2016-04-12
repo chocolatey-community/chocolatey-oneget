@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PackageManagement</RootNamespace>
-    <AssemblyName>SampleProvider</AssemblyName>
+    <AssemblyName>ChocolateyProvider</AssemblyName>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup>
@@ -33,6 +33,7 @@
     <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>output\v40\Debug\bin\ChocolateyProvider.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,6 +41,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>output\v40\Release\bin\ChocolateyProvider.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ChocolateyPackageProvider.cs" />
@@ -61,12 +63,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="chocolatey, Version=0.9.9.11, Culture=neutral, PublicKeyToken=79d02ea9cad655eb, processorArchitecture=MSIL">
-      <HintPath>packages\chocolatey.lib.0.9.9.11\lib\chocolatey.dll</HintPath>
+    <Reference Include="chocolatey, Version=0.9.10.0, Culture=neutral, PublicKeyToken=79d02ea9cad655eb, processorArchitecture=MSIL">
+      <HintPath>packages\chocolatey.lib.0.9.10-beta-20160411\lib\chocolatey.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <HintPath>packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp">
