@@ -1,4 +1,4 @@
-# by default it will find the newest $providerName.dll and copy it to the right location
+﻿# by default it will find the newest $providerName.dll and copy it to the right location
 # (change the default value of $providerName when you change your provider name )
 # otherwise you can say 'debug' or 'release' for the $build
 Param( [string]$build = '', [string]$providerName = 'ChocolateyProvider' )
@@ -15,7 +15,7 @@ function CopyHarder {
         # delete the old provider assembly
         # even if it's in use.
         $tmpName = "$filename.delete-me.$(get-random)"
-        $tmpPath = "$env:localappdata\oneget\providerassemblies\$tmpName"
+        $tmpPath = "$env:localappdata\packagemanagement\providerassemblies\$tmpName"
         
         ren $output $tmpName -force -ea SilentlyContinue 
         erase -force -ea SilentlyContinue $tmpPath
@@ -60,10 +60,8 @@ $filename = $provider.Name
 $srcdir = $provider.Directory
 
 foreach( $dll in (dir $srcdir\*.dll)  ) {
-    $output = "$env:localappdata\oneget\providerassemblies\$($dll.Name)"
+    $output = "$env:localappdata\packagemanagement\providerassemblies\$($dll.Name)"
     CopyHarder $dll.FullName $output
 }
 
 cd $orig
-
-

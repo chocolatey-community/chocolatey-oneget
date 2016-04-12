@@ -1,29 +1,29 @@
-﻿// 
-//  Copyright (c) Microsoft Corporation. All rights reserved. 
+﻿//
+//  Copyright (c) Microsoft Corporation. All rights reserved.
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
 //  http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-//  
+//
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using OneGet.Sdk;
+using PackageManagement.Sdk;
 using chocolatey;
 
-namespace OneGet
+namespace PackageManagement
 {
 	/// <summary>
 	/// A Package provider for OneGet.
-	/// 
+	///
 	/// Important notes:
 	///	- Required Methods: Not all methods are required; some package providers do not support some features. If the methods isn't used or implemented it should be removed (or commented out)
 	///	- Error Handling: Avoid throwing exceptions from these methods. To properly return errors to the user, use the request.Error(...) method to notify the user of an error conditionm and then return.
@@ -38,14 +38,14 @@ namespace OneGet
 
 			// specify the extensions that your provider uses for its package files (if you have any)
 			{ Constants.Features.SupportedExtensions, new[]{"nupkg"}},
-		
+
 			// you can list the URL schemes that you support searching for packages with
 			{ Constants.Features.SupportedSchemes, new [] {"http", "https", "file"}},
-#if FOR_EXAMPLE 
+#if FOR_EXAMPLE
 			// add this if you want to 'hide' your provider by default.
 			{ Constants.Features.AutomationOnly, Constants.FeaturePresent },
 #endif
-			// you can list the magic signatures (bytes at the beginning of a file) that we can use 
+			// you can list the magic signatures (bytes at the beginning of a file) that we can use
 			// to peek and see if a given file is yours.
 			{ Constants.Features.MagicSignatures, Constants.Signatures.ZipVariants},
 		};
@@ -54,7 +54,7 @@ namespace OneGet
 
 
 		/// <summary>
-		/// Returns the name of the Provider. 
+		/// Returns the name of the Provider.
 		/// TODO: Test and verify that we want "choco" vs "chocolatey"
 		/// TODO: let's keep it as 'choco' until we are ready to punt the prototype provider
 		/// </summary>
@@ -65,7 +65,7 @@ namespace OneGet
 		}
 
 		/// <summary>
-		/// Returns the version of the Provider. 
+		/// Returns the version of the Provider.
 		/// </summary>
 		/// <returns>The version of this provider </returns>
 		public string ProviderVersion
@@ -127,7 +127,7 @@ namespace OneGet
 					break;
 
 				case "package":
-					// TODO: put any options used when searching for packages 
+					// TODO: put any options used when searching for packages
 
 					break;
 				default:
@@ -153,9 +153,9 @@ namespace OneGet
 		#region Sources
 		/// <summary>
 		/// Resolves and returns Package Sources to the client.
-		/// 
-		/// Specified sources are passed in via the request object (<c>request.GetSources()</c>). 
-		/// 
+		///
+		/// Specified sources are passed in via the request object (<c>request.GetSources()</c>).
+		///
 		/// Sources are returned using <c>request.YieldPackageSource(...)</c>
 		/// </summary>
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
@@ -207,8 +207,8 @@ namespace OneGet
 
 
 		/// <summary>
-		/// Searches package sources given name and version information 
-		/// 
+		/// Searches package sources given name and version information
+		///
 		/// Package information must be returned using <c>request.YieldPackage(...)</c> function.
 		/// </summary>
 		/// <param name="name">a name or partial name of the package(s) requested</param>
@@ -227,7 +227,7 @@ namespace OneGet
 
 		/// <summary>
 		/// Finds packages given a locally-accessible filename
-		/// 
+		///
 		/// Package information must be returned using <c>request.YieldPackage(...)</c> function.
 		/// </summary>
 		/// <param name="file">the full path to the file to determine if it is a package</param>
@@ -242,10 +242,10 @@ namespace OneGet
 		}
 
 		/// <summary>
-		/// Finds packages given a URI. 
-		/// 
+		/// Finds packages given a URI.
+		///
 		/// The function is responsible for downloading any content required to make this work
-		/// 
+		///
 		/// Package information must be returned using <c>request.YieldPackage(...)</c> function.
 		/// </summary>
 		/// <param name="uri">the URI the client requesting a package for.</param>
@@ -300,11 +300,11 @@ namespace OneGet
 			// TODO: improve this debug message that tells us what's going on.
 			request.Debug("Calling '{0}::InstallPackage' '{1}'", PackageProviderName, fastPackageReference);
 
-			// TODO: Install the package 
+			// TODO: Install the package
 		}
 
 		/// <summary>
-		/// Uninstalls a package 
+		/// Uninstalls a package
 		/// </summary>
 		/// <param name="fastPackageReference"></param>
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
@@ -313,11 +313,11 @@ namespace OneGet
 			// TODO: improve this debug message that tells us what's going on.
 			request.Debug("Calling '{0}::UninstallPackage' '{1}'", PackageProviderName, fastPackageReference);
 
-			// TODO: Uninstall the package 
+			// TODO: Uninstall the package
 		}
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="name"></param>
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>
@@ -330,7 +330,7 @@ namespace OneGet
 		}
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="fastPackageReference"></param>
 		/// <param name="request">An object passed in from the CORE that contains functions that can be used to interact with the CORE and HOST</param>

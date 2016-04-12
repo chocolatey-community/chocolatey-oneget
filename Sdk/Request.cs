@@ -1,34 +1,36 @@
-// 
-//  Copyright (c) Microsoft Corporation. All rights reserved. 
+//
+//  Copyright (c) Microsoft Corporation. All rights reserved.
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
 //  http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-//  
+//
 
-namespace OneGet.Sdk {
+namespace PackageManagement.Sdk {
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Security;
     using Resources;
-    
+
     public abstract class Request {
         private Dictionary<string, string[]> _options;
         private string[] _packageSources;
 
-        #region OneGet Interfaces
+        #region PackageMangaement Interfaces
         public interface IProviderServices {
             bool IsElevated { get; }
 
-            string GetCanonicalPackageId(string providerName, string packageName, string version);
+            IEnumerable<object> FindPackageByCanonicalId(string canonicalId, Request requestObject);
+
+            string GetCanonicalPackageId(string providerName, string packageName, string version, string source);
 
             string ParseProviderName(string canonicalPackageId);
 
@@ -36,49 +38,21 @@ namespace OneGet.Sdk {
 
             string ParsePackageVersion(string canonicalPackageId);
 
+            string ParsePackageSource(string canonicalPackageId);
+
             void DownloadFile(Uri remoteLocation, string localFilename, Request requestObject);
 
             bool IsSupportedArchive(string localFilename, Request requestObject);
 
             IEnumerable<string> UnpackArchive(string localFilename, string destinationFolder, Request requestObject);
 
-            void AddPinnedItemToTaskbar(string item, Request requestObject);
-
-            void RemovePinnedItemFromTaskbar(string item, Request requestObject);
-
-            void CreateShortcutLink(string linkPath, string targetPath, string description, string workingDirectory, string arguments, Request requestObject);
-
-            void SetEnvironmentVariable(string variable, string value, string context, Request requestObject);
-
-            void RemoveEnvironmentVariable(string variable, string context, Request requestObject);
-
-            void CopyFile(string sourcePath, string destinationPath, Request requestObject);
-
-            void Delete(string path, Request requestObject);
-
-            void DeleteFolder(string folder, Request requestObject);
-
-            void CreateFolder(string folder, Request requestObject);
-
-            void DeleteFile(string filename, Request requestObject);
-
-            string GetKnownFolder(string knownFolder, Request requestObject);
-
-            string CanonicalizePath(string text, string currentDirectory);
-
-            bool FileExists(string path);
-
-            bool DirectoryExists(string path);
-
             bool Install(string fileName, string additionalArgs, Request requestObject);
 
             bool IsSignedAndTrusted(string filename, Request requestObject);
-
-            bool ExecuteElevatedAction(string provider, string payload, Request requestObject);
         }
 
         public interface IPackageProvider {
-            
+
         }
 
         public interface IPackageManagementService {
@@ -178,20 +152,35 @@ namespace OneGet.Sdk {
         /// <param name="fullPath"></param>
         /// <param name="packageFileName"></param>
         /// <returns></returns>
-        public abstract bool YieldSoftwareIdentity(string fastPath, string name, string version, string versionScheme, string summary, string source, string searchKey, string fullPath, string packageFileName);
+        public abstract string YieldSoftwareIdentity(string fastPath, string name, string version, string versionScheme, string summary, string source, string searchKey, string fullPath, string packageFileName);
 
-        public abstract bool YieldSoftwareMetadata(string parentFastPath, string name, string value);
+        public abstract string AddMetadata(string name, string value);
 
-        public abstract bool YieldEntity(string parentFastPath, string name, string regid, string role, string thumbprint);
+        public abstract string AddMetadata(string elementPath, string name, string value);
 
-        public abstract bool YieldLink(string parentFastPath, string referenceUri, string relationship, string mediaType, string ownership, string use, string appliesToMedia, string artifact);
+        public abstract string AddMetadata(string elementPath, Uri @namespace, string name, string value);
 
-#if M2
-        public abstract bool YieldSwidtag(string fastPath, string xmlOrJsonDoc);
+        public abstract string AddTagId(string tagId);
 
-        public abstract bool YieldMetadata(string fieldId, string @namespace, string name, string value);
+        public abstract string AddMeta(string elementPath);
 
-#endif
+        public abstract string AddEntity(string name, string regid, string role, string thumbprint);
+
+        public abstract string AddLink(Uri referenceUri, string relationship, string mediaType, string ownership, string use, string appliesToMedia, string artifact);
+
+        public abstract string AddDependency(string providerName, string packageName, string version, string source, string appliesTo);
+
+        public abstract string AddPayload();
+
+        public abstract string AddEvidence(DateTime date, string deviceId);
+
+        public abstract string AddDirectory(string elementPath, string directoryName, string location, string root, bool isKey);
+
+        public abstract string AddFile(string elementPath, string fileName, string location, string root, bool isKey, long size, string version);
+
+        public abstract string AddProcess(string elementPath, string processName, int pid);
+
+        public abstract string AddResource(string elementPath, string type);
 
         /// <summary>
         ///     Used by a provider to return fields for a package source (repository)
