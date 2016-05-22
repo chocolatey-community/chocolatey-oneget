@@ -12,7 +12,8 @@
 //  limitations under the License.
 //
 
-namespace PackageManagement.Sdk {
+namespace PackageManagement.Sdk
+{
     using System;
     using System.Collections.Generic;
     using System.Globalization;
@@ -20,12 +21,14 @@ namespace PackageManagement.Sdk {
     using System.Security;
     using Resources;
 
-    public abstract class Request {
+    public abstract class Request
+    {
         private Dictionary<string, string[]> _options;
         private string[] _packageSources;
 
         #region PackageMangaement Interfaces
-        public interface IProviderServices {
+        public interface IProviderServices
+        {
             bool IsElevated { get; }
 
             IEnumerable<object> FindPackageByCanonicalId(string canonicalId, Request requestObject);
@@ -51,11 +54,13 @@ namespace PackageManagement.Sdk {
             bool IsSignedAndTrusted(string filename, Request requestObject);
         }
 
-        public interface IPackageProvider {
+        public interface IPackageProvider
+        {
 
         }
 
-        public interface IPackageManagementService {
+        public interface IPackageManagementService
+        {
             int Version { get; }
 
             IEnumerable<string> ProviderNames { get; }
@@ -76,16 +81,16 @@ namespace PackageManagement.Sdk {
 
         #region core-apis
 
-        public abstract dynamic PackageManagementService {get;}
+        public abstract dynamic PackageManagementService { get; }
 
-        public abstract IProviderServices ProviderServices {get;}
+        public abstract IProviderServices ProviderServices { get; }
 
         #endregion
 
         #region copy host-apis
 
         /* Synced/Generated code =================================================== */
-        public abstract bool IsCanceled {get;}
+        public abstract bool IsCanceled { get; }
 
         public abstract string GetMessageString(string messageText, string defaultText);
 
@@ -109,7 +114,7 @@ namespace PackageManagement.Sdk {
         ///     Used by a provider to request what metadata keys were passed from the user
         /// </summary>
         /// <returns></returns>
-        public abstract IEnumerable<string> OptionKeys {get;}
+        public abstract IEnumerable<string> OptionKeys { get; }
 
         /// <summary>
         /// </summary>
@@ -117,11 +122,11 @@ namespace PackageManagement.Sdk {
         /// <returns></returns>
         public abstract IEnumerable<string> GetOptionValues(string key);
 
-        public abstract IEnumerable<string> Sources {get;}
+        public abstract IEnumerable<string> Sources { get; }
 
-        public abstract string CredentialUsername {get;}
+        public abstract string CredentialUsername { get; }
 
-        public abstract SecureString CredentialPassword {get;}
+        public abstract SecureString CredentialPassword { get; }
 
         public abstract bool ShouldBootstrapProvider(string requestor, string providerName, string providerVersion, string providerType, string location, string destination);
 
@@ -129,9 +134,9 @@ namespace PackageManagement.Sdk {
 
         public abstract bool AskPermission(string permission);
 
-        public abstract bool IsInteractive {get;}
+        public abstract bool IsInteractive { get; }
 
-        public abstract int CallCount {get;}
+        public abstract int CallCount { get; }
 
         #endregion
 
@@ -213,72 +218,90 @@ namespace PackageManagement.Sdk {
         /// </summary>
         /// <param name="dictionary"></param>
         /// <returns></returns>
-        public bool Yield(Dictionary<string, string[]> dictionary) {
+        public bool Yield(Dictionary<string, string[]> dictionary)
+        {
             return dictionary.All(Yield);
         }
 
-        public bool Yield(KeyValuePair<string, string[]> pair) {
-            if (pair.Value.Length == 0) {
+        public bool Yield(KeyValuePair<string, string[]> pair)
+        {
+            if (pair.Value.Length == 0)
+            {
                 return YieldKeyValuePair(pair.Key, null);
             }
             return pair.Value.All(each => YieldKeyValuePair(pair.Key, each));
         }
 
-        public bool Error(ErrorCategory category, string targetObjectValue, string messageText, params object[] args) {
+        public bool Error(ErrorCategory category, string targetObjectValue, string messageText, params object[] args)
+        {
             return Error(messageText, category.ToString(), targetObjectValue, FormatMessageString(messageText, args));
         }
 
-        public bool Warning(string messageText, params object[] args) {
+        public bool Warning(string messageText, params object[] args)
+        {
             return Warning(FormatMessageString(messageText, args));
         }
 
-        public bool Message(string messageText, params object[] args) {
+        public bool Message(string messageText, params object[] args)
+        {
             return Message(FormatMessageString(messageText, args));
         }
 
-        public bool Verbose(string messageText, params object[] args) {
+        public bool Verbose(string messageText, params object[] args)
+        {
             return Verbose(FormatMessageString(messageText, args));
         }
 
-        public bool Debug(string messageText, params object[] args) {
+        public bool Debug(string messageText, params object[] args)
+        {
             return Debug(FormatMessageString(messageText, args));
         }
 
-        public int StartProgress(int parentActivityId, string messageText, params object[] args) {
+        public int StartProgress(int parentActivityId, string messageText, params object[] args)
+        {
             return StartProgress(parentActivityId, FormatMessageString(messageText, args));
         }
 
-        public bool Progress(int activityId, int progressPercentage, string messageText, params object[] args) {
+        public bool Progress(int activityId, int progressPercentage, string messageText, params object[] args)
+        {
             return Progress(activityId, progressPercentage, FormatMessageString(messageText, args));
         }
 
-        public string GetOptionValue(string name) {
+        public string GetOptionValue(string name)
+        {
             // get the value from the request
             return (GetOptionValues(name) ?? Enumerable.Empty<string>()).LastOrDefault();
         }
 
-        private static string FixMeFormat(string formatString, object[] args) {
-            if (args == null || args.Length == 0) {
+        private static string FixMeFormat(string formatString, object[] args)
+        {
+            if (args == null || args.Length == 0)
+            {
                 // not really any args, and not really expectng any
                 return formatString.Replace('{', '\u00ab').Replace('}', '\u00bb');
             }
             return args.Aggregate(formatString.Replace('{', '\u00ab').Replace('}', '\u00bb'), (current, arg) => current + string.Format(CultureInfo.CurrentCulture, " \u00ab{0}\u00bb", arg));
         }
 
-        internal string GetMessageStringInternal(string messageText) {
+        internal string GetMessageStringInternal(string messageText)
+        {
             return Messages.ResourceManager.GetString(messageText);
         }
 
-        internal string FormatMessageString(string messageText, params object[] args) {
-            if (string.IsNullOrEmpty(messageText)) {
+        internal string FormatMessageString(string messageText, params object[] args)
+        {
+            if (string.IsNullOrEmpty(messageText))
+            {
                 return string.Empty;
             }
 
-            if (args == null) {
+            if (args == null)
+            {
                 return messageText;
             }
 
-            if (messageText.StartsWith(Constants.MSGPrefix, true, CultureInfo.CurrentCulture)) {
+            if (messageText.StartsWith(Constants.MSGPrefix, true, CultureInfo.CurrentCulture))
+            {
                 // check with the caller first, then with the local resources, and fallback to using the messageText itself.
                 messageText = GetMessageString(messageText.Substring(Constants.MSGPrefix.Length), GetMessageStringInternal(messageText) ?? messageText) ?? GetMessageStringInternal(messageText) ?? messageText;
             }
@@ -286,24 +309,30 @@ namespace PackageManagement.Sdk {
             // if it doesn't look like we have the correct number of parameters
             // let's return a fix-me-format string.
             var c = messageText.ToCharArray().Where(each => each == '{').Count();
-            if (c < args.Length) {
+            if (c < args.Length)
+            {
                 return FixMeFormat(messageText, args);
             }
             return string.Format(CultureInfo.CurrentCulture, messageText, args);
         }
 
-        public bool YieldDynamicOption(string name, string expectedType, bool isRequired, IEnumerable<string> permittedValues) {
+        public bool YieldDynamicOption(string name, string expectedType, bool isRequired, IEnumerable<string> permittedValues)
+        {
             return YieldDynamicOption(name, expectedType, isRequired) && (permittedValues ?? Enumerable.Empty<string>()).All(each => YieldKeyValuePair(name, each));
         }
 
-        public Dictionary<string, string[]> Options {
-            get {
+        public Dictionary<string, string[]> Options
+        {
+            get
+            {
                 return _options ?? (_options = OptionKeys.Where(each => !string.IsNullOrWhiteSpace(each)).ToDictionary(k => k, (k) => (GetOptionValues(k) ?? new string[0]).ToArray()));
             }
         }
 
-        public IEnumerable<string> PackageSources {
-            get {
+        public IEnumerable<string> PackageSources
+        {
+            get
+            {
                 return _packageSources ?? (_packageSources = (Sources ?? new string[0]).ToArray());
             }
         }

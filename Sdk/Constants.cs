@@ -12,8 +12,10 @@
 //  limitations under the License.
 //
 
-namespace PackageManagement.Sdk {
-    public static partial class Constants {
+namespace PackageManagement.Sdk
+{
+    public static partial class Constants
+    {
         #region copy common-constants-implementation /internal/public
 
         public const string MinVersion = "0.0.0.1";
@@ -21,7 +23,8 @@ namespace PackageManagement.Sdk {
         public static string[] FeaturePresent = new string[0];
         public static string[] Empty = new string[0];
 
-        public static partial class Features {
+        public static partial class Features
+        {
             public const string AutomationOnly = "automation-only";
             public const string MagicSignatures = "magic-signatures";
             public const string SupportedExtensions = "file-extensions";
@@ -32,7 +35,8 @@ namespace PackageManagement.Sdk {
             public const string SupportsWildcardSearch = "supports-wildcard-search";
         }
 
-        public static partial class Messages {
+        public static partial class Messages
+        {
             public const string CreatefolderFailed = "MSG:CreatefolderFailed";
             public const string DependencyResolutionError = "MSG:UnableToResolveDependency_dependencyPackage";
             public const string DependentPackageFailedInstall = "MSG:DependentPackageFailedInstall_dependency";
@@ -65,7 +69,8 @@ namespace PackageManagement.Sdk {
             public const string UserDeclinedUntrustedPackageInstall = "MSG:UserDeclinedUntrustedPackageInstall";
         }
 
-        public static partial class OptionType {
+        public static partial class OptionType
+        {
             public const string String = "String";
             public const string StringArray = "StringArray";
             public const string Int = "Int";
@@ -77,27 +82,31 @@ namespace PackageManagement.Sdk {
             public const string SecureString = "SecureString";
         }
 
-        public static partial class PackageStatus {
+        public static partial class PackageStatus
+        {
             public const string Available = "Available";
             public const string Dependency = "Dependency";
             public const string Installed = "Installed";
             public const string Uninstalled = "Uninstalled";
         }
 
-        public static partial class Parameters {
+        public static partial class Parameters
+        {
             public const string IsUpdate = "IsUpdatePackageSource";
             public const string Name = "Name";
             public const string Location = "Location";
         }
 
-        public static partial class Signatures {
+        public static partial class Signatures
+        {
             public const string Cab = "4D534346";
             public const string OleCompoundDocument = "D0CF11E0A1B11AE1";
             public const string Zip = "504b0304";
-            public static string[] ZipVariants = new[] {Zip, /* should have EXEs? */};
+            public static string[] ZipVariants = new[] { Zip, /* should have EXEs? */};
         }
 
-        public static partial class SwidTag {
+        public static partial class SwidTag
+        {
             public const string SoftwareIdentity = "SoftwareIdentity";
         }
 
