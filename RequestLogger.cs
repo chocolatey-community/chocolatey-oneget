@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using chocolatey.infrastructure.logging;
-using PackageManagement.Sdk;
-
-namespace PackageManagement
+﻿namespace PackageManagement
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using chocolatey.infrastructure.logging;
+	using PackageManagement.Sdk;
+
 	public class RequestLogger : ILog
 	{
 		private readonly Request _request;

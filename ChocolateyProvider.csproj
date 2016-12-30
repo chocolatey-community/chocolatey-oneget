@@ -10,9 +10,12 @@
     <RootNamespace>PackageManagement</RootNamespace>
     <AssemblyName>ChocolateyProvider</AssemblyName>
     <FileAlignment>512</FileAlignment>
+    <SolutionPropsPath Condition="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), solution.props)) != ''">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), solution.props))\solution.props</SolutionPropsPath>
   </PropertyGroup>
-  <PropertyGroup>
-    <SolutionDir Condition=" '$(SolutionDir)'=='' ">$(MSBuildProjectDirectory)\</SolutionDir>
+  <Import Project="$(SolutionPropsPath)" Condition="$(SolutionPropsPath) != '' AND Exists($(SolutionPropsPath))" />
+  <PropertyGroup Condition="$(SolutionPropsPath) == '' OR !Exists($(SolutionPropsPath))">
+    <!-- if this is built standalone, we don't need the solution.props file. -->
+    <SolutionDir Condition=" '$(SolutionDir)'=='' ">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), PackageProvider.sln))\</SolutionDir>
     <SolutionRootDir>$(SolutionDir)</SolutionRootDir>
     <!-- Defaults to .Net 4.0 -->
     <TargetFrameworkVersion Condition="$(TargetFrameworkVersion) == '' Or $(TargetFrameworkVersion) == '*Undefined*'">v4.0</TargetFrameworkVersion>
@@ -45,6 +48,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ChocolateyPackageProvider.cs" />
+    <Compile Include="RequestHelper.cs" />
     <Compile Include="RequestLogger.cs" />
     <Compile Include="Sdk\Constants.cs" />
     <Compile Include="Sdk\ErrorCategory.cs" />
@@ -67,16 +71,15 @@
       <HintPath>packages\chocolatey.lib.0.9.10.3\lib\chocolatey.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+    <Reference Include="log4net">
       <HintPath>packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp">
     </Reference>
-    <Reference Include="System">
-    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="install-provider.ps1" />
     <None Include="LICENSE" />
     <None Include="packages.config" />
     <None Include="provider.manifest" />

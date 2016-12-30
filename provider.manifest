@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <SoftwareIdentity
-    name="Name of your provider"
+    name="Chocolatey Provider for PackageManagement"
 	version="1.0.0.0" versionScheme="multipartnumeric"
 	tagId="71723DE8-8D87-4A7C-9D52-FA21D54BA6D5"
 	media="(windows) and (PackageManagement) and (min-PackageManagement.api:2)"
