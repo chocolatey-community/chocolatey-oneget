@@ -77,12 +77,6 @@
     </Reference>
     <Reference Include="Microsoft.CSharp">
     </Reference>
-    <Reference Include="NuGet.Core, Version=2.8.50506.491, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\choco\src\output\v40\Release\bin\NuGet.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System">
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="install-provider.ps1" />
@@ -90,12 +84,6 @@
     <None Include="packages.config" />
     <None Include="provider.manifest" />
     <None Include="README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\choco\src\chocolatey\chocolatey.csproj">
-      <Project>{5563dc61-35fd-4fab-b331-9ae1fdb23f80}</Project>
-      <Name>chocolatey</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
