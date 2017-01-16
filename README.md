@@ -1,5 +1,7 @@
 **NOTE:** Seeking maintainers to help finish this Provider. Please inquire on the issues list or on Gitter (see the chat room below). Thanks!
 
+**NOTE:** For now, you may be more interested in using the ChocolateyGet provider as a stop gap solution until this provider is ready. See https://github.com/jianyunt/ChocolateyGet for details
+
 # Chocolatey Provider for PowerShell PackageManagement (aka OneGet) (C#)
 This will be the official Chocolatey provider for PackageManagement.
 
