@@ -219,8 +219,6 @@ namespace PackageManagement
 			// TODO: support user-defined package sources OR remove this method
 		}
 
-		#endregion
-
 		/// <summary>
 		/// Searches package sources given name and version information
 		///
