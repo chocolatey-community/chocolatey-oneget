@@ -5,11 +5,17 @@
 # Chocolatey Provider for PowerShell PackageManagement (aka OneGet) (C#)
 This will be the official Chocolatey provider for PackageManagement.
 
-## Development Requires:
+# Native implementation
+Thi part contains plain PowerShell implementation of the provider, development is done only in this part.
+
+## C# implementation - OBSOLETE
+The provider written in C# is obsolete. Requires windows SDK, which contains mt.exe to be able compile the project. No future development here is expected. Related files will be remoted later.
+
+### Development Requires:
     - Visual Studio 2013+
     - Any official PackageManagement build from February 2015 or later.
 
-## Chat Room
+### Chat Room
 
 Come join in the conversation about Chocolatey in our Gitter Chat Room
 

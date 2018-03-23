@@ -99,3 +99,4 @@ policheck*
 *pingme*
 *.GhostDoc.xml
 /.vs/ChocolateyProvider
+/Obsolete/.vs/ChocolateyProvider/v15/Server/sqlite3
