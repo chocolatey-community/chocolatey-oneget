@@ -8,6 +8,17 @@ This will be the official Chocolatey provider for PackageManagement.
 # Native implementation
 Thi part contains plain PowerShell implementation of the provider, development is done only in this part.
 
+Prerequisities
+* Recommended development environement is visual Studio Code with PowerShell extension
+* Run build/prepareEnvironment.ps1 script to install all tools used for provider development, it installs used tools
+* Used tools:
+** Pester - powershell testing framework
+** PackageManagement - Required dependency, we develop its plugin
+** Chocolatey.lib - chocolatey library API
+** Paket - dependencies nuget packages downloader
+
+
+
 ## C# implementation - OBSOLETE
 The provider written in C# is obsolete. Requires windows SDK, which contains mt.exe to be able compile the project. No future development here is expected. Related files will be remoted later.
 
