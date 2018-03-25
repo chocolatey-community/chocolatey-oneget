@@ -9,4 +9,13 @@ Describe 'Chocolatey-OneGet Module API' {
         $name = Get-PackageProviderName;
         $name | Should -be "Chocolatey-OneGet";
     }
+
+    It "It sucessfully initializes provider" {
+        { Initialize-Provider } | Should -Not -Throw;
+    }
+
+    It "It returns supported features" {
+        $features = Get-Feature;
+        $features.Length | Should -BeExactly 2;
+    }
 }
