@@ -32,7 +32,8 @@ Task Clean-Repository {
 }
 
 Task Test {
-    # TODO Run Pester tests
+    # Run Pester tests
+    . ..\Tests\ModuleTests.ps1;
 }
 
 Task Publish {
