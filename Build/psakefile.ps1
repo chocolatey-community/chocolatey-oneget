@@ -34,3 +34,8 @@ Task Clean-Repository {
 Task Test {
     # TODO Run Pester tests
 }
+
+Task Publish {
+    # nugetApi key needs to beprovided by chocolatey owners
+    Publish-Module -Path $moduleFolder -NuGetApiKey ""; 
+}
