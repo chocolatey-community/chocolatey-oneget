@@ -33,7 +33,10 @@ Task Clean-Repository {
 
 Task Test {
     # Run Pester tests
-    . ..\Tests\ModuleTests.ps1;
+    $testResults = Invoke-Pester ..\Tests\ModuleTests.ps1 -EnableExit -PassThru;
+    if ($testResults.FailedCount -gt 0) {
+        Write-Error -Message 'One or more Pester tests failed!';
+    }
 }
 
 Task Publish {
