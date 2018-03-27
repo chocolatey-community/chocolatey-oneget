@@ -38,7 +38,26 @@ function Add-PackageSource {
         $Trusted
     )
 
-    #TODO
+    if(-not (Test-Path -path $Location)) {
+        ThrowError "System.ArgumentException" "Name"
+        return
+    }
+
+    if(-not (Test-Path -path $Location)) {
+        ThrowError "System.ArgumentException" "Location"
+        return
+    }
+
+    $Script:choco.Set({
+        param($config)
+
+        $config.CommandName = "source";
+        $config.SourceCommand.Command = 2;
+        $config.SourceCommand.Name = $Name;
+        $config.Sources = $Location;
+        })
+
+    $Script:choco.Run()
 }
 
 function Remove-PackageSource {
@@ -53,10 +72,17 @@ function Remove-PackageSource {
 
 function Find-Package {
     param(
-        [string] $name,
-        [string] $requiredVersion,
-        [string] $minimumVersion,
-        [string] $maximumVersion
+        [string]
+        $name,
+        
+        [string]
+        $requiredVersion,
+        
+        [string]
+        $minimumVersion,
+        
+        [string]
+        $maximumVersion
     )
 
     #TODO
@@ -134,3 +160,22 @@ function Download-Package {
 #     Write-Output -InputObject (New-Feature -name "file-extensions" -values @(".nupkg"));
 #     Write-Output -InputObject (New-Feature -name "uri-schemes" -values @("http", "https", "file"));
 # }
+
+function ThrowError(){
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $exceptionType,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $exceptionMessage
+    )
+
+    $exception = New-Object $exceptionType $exceptionMessage
+    $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "", "", $Null    
+    $CallerPSCmdlet.ThrowTerminatingError($errorRecord)
+}

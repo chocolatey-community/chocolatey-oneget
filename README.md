@@ -36,7 +36,7 @@ Progress:
   * UnInstall-Package - TODO
   * Download-Package - TODO
   * Resolve-PackageSource - TODO
-  * Add-PackageSource - TODO
+  * Add-PackageSource - IN PROGRESS
   * Remove-PackageSource - TODO
 
 ## C# implementation - OBSOLETE
