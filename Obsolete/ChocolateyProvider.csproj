@@ -67,9 +67,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="chocolatey, Version=0.9.10.3, Culture=neutral, PublicKeyToken=79d02ea9cad655eb, processorArchitecture=MSIL">
-      <HintPath>packages\chocolatey.lib.0.9.10.3\lib\chocolatey.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="chocolatey, Version=0.10.9.0, Culture=neutral, PublicKeyToken=79d02ea9cad655eb, processorArchitecture=MSIL">
+      <HintPath>packages\chocolatey.lib.0.10.9\lib\chocolatey.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
