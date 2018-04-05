@@ -1,18 +1,18 @@
 function Get-PackageProviderName { 
-    return "Chocolatey-OneGet";
+    return "Chocolatey-OneGet"
 }
 
 function Initialize-Provider { 
-    $chocoBinary = Join-Path $PSScriptRoot "\\chocolatey.dll";
-    Add-Type -Path $chocoBinary;
-    $Script:choco = [chocolatey.Lets]::GetChocolatey();
+    $chocoBinary = Join-Path $PSScriptRoot "\\chocolatey.dll"
+    Add-Type -Path $chocoBinary
+    $Script:choco = [chocolatey.Lets]::GetChocolatey()
 }
 
 function Resolve-PackageSource {
-    $SourceName = $request.PackageSources;
+    $SourceName = $request.PackageSources
 
     if(-not $SourceName) {
-        $SourceName = "*";
+        $SourceName = "*"
     }
 
     foreach($src in $SourceName) {
@@ -26,8 +26,7 @@ function Resolve-PackageSource {
 
 function Add-PackageSource {
     [CmdletBinding()]
-    param
-    (
+    param(
         [string]
         $Name,
 
@@ -51,10 +50,10 @@ function Add-PackageSource {
     $Script:choco.Set({
         param($config)
 
-        $config.CommandName = "source";
-        $config.SourceCommand.Command = 2;
-        $config.SourceCommand.Name = $Name;
-        $config.Sources = $Location;
+        $config.CommandName = "source"
+        $config.SourceCommand.Command = 2
+        $config.SourceCommand.Name = $Name
+        $config.Sources = $Location
         })
 
     $Script:choco.Run()
@@ -73,16 +72,16 @@ function Remove-PackageSource {
 function Find-Package {
     param(
         [string]
-        $name,
+        $Name,
         
         [string]
-        $requiredVersion,
+        $RequiredVersion,
         
         [string]
-        $minimumVersion,
+        $MinimumVersion,
         
         [string]
-        $maximumVersion
+        $MaximumVersion
     )
 
     #TODO
@@ -90,8 +89,7 @@ function Find-Package {
 
 function Get-InstalledPackage {
     [CmdletBinding()]
-    param
-    (
+    param(
         [Parameter()]
         [string]
         $Name,
@@ -114,24 +112,22 @@ function Get-InstalledPackage {
 
 function Install-Package {
    [CmdletBinding()]
-   param
-   (
+   param(
        [Parameter(Mandatory=$true)]
        [ValidateNotNullOrEmpty()]
        [string]
-       $fastPackageReference
+       $FastPackageReference
    )
    #TODO
  }
 
 function UnInstall-Package {
     [CmdletBinding()]
-    param
-    (
+    param(
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [string]
-        $fastPackageReference
+        $FastPackageReference
     )
 
      #TODO
@@ -139,8 +135,7 @@ function UnInstall-Package {
 
 function Download-Package {
     [CmdletBinding()]
-    param
-    (
+    param(
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -157,8 +152,8 @@ function Download-Package {
 
 # TODO ensure it is part of provider API
 # function Get-Feature {
-#     Write-Output -InputObject (New-Feature -name "file-extensions" -values @(".nupkg"));
-#     Write-Output -InputObject (New-Feature -name "uri-schemes" -values @("http", "https", "file"));
+#     Write-Output -InputObject (New-Feature -name "file-extensions" -values @(".nupkg"))
+#     Write-Output -InputObject (New-Feature -name "uri-schemes" -values @("http", "https", "file"))
 # }
 
 function ThrowError(){

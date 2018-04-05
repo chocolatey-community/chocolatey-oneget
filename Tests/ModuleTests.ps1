@@ -3,18 +3,18 @@ Describe 'Chocolatey-OneGet Module API' {
         Import-Module Chocolatey-OneGet -Force
         
         It "It is loaded" {
-            Get-Module Chocolatey-OneGet | Should -Not -Be $null;
+            Get-Module Chocolatey-OneGet | Should -Not -Be $null
         }
 
         It "It names it self as Chocolatey-OneGet" {
-            $name = Get-PackageProviderName;
-            $name | Should -be "Chocolatey-OneGet";
+            $name = Get-PackageProviderName
+            $name | Should -be "Chocolatey-OneGet"
         }
 
         It "It sucessfully initializes provider" {
             { 
-                Initialize-Provider;
-            } | Should -Not -Throw;
+                Initialize-Provider
+            } | Should -Not -Throw
         }
 
         It "It adds repository" {
