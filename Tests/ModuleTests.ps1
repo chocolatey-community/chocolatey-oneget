@@ -1,25 +1,31 @@
 Describe 'Chocolatey-OneGet Module API' {
     Context "Installed module" {
-        $chocolateyOneGet = "Chocolatey-OneGet"
-        Import-PackageProvider $chocolateyOneGet -force
-        Initialize-Provider
+        BeforeEach {
+            $chocolateyOneGet = "Chocolatey-OneGet"
+            $expectedSourceName = "Chocolatey-TestScriptRoot"
+            # If import failed, chocolatey.dll is locked and is necessary to reload powershell
+            Import-PackageProvider $chocolateyOneGet -force
+            Initialize-Provider
 
-        It "It imports as PackageProvider" {
-            $provider = Get-PackageProvider -Name $chocolateyOneGet
-            $provider | Should -Not -be $null
+            Invoke-Expression "choco source remove -n=$expectedSourceName"
         }
 
+        AfterEach {
+            Invoke-Expression "choco source remove -n=$expectedSourceName"
+        }
+
+        # It "It imports as PackageProvider" {
+        #     $provider = Get-PackageProvider -Name $chocolateyOneGet
+        #     $provider | Should -Not -be $null
+        # }
+
         It "It adds repository" {
-            $expectedName = "Chocolatey-TestScriptRoot"
-            choco source remove -n=$expectedName | Out-Null
-
-            Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedName -Location $PSScriptRootPS
+            #Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $PSScriptRoot
             #Debug:
-            #Add-PackageSource -Name $expectedName -Location $PSScriptRoot -Trusted $false
+            Add-PackageSource -Name $expectedSourceName -Location $PSScriptRoot -Trusted $false
 
-            $found = choco source list | Where-Object { $_.Contains($expectedName)}
+            $found = choco source list | Where-Object { $_.Contains($expectedSourceName)}
             $found | Should -Not -Be $null
-            choco source remove -n=$expectedName | Out-Null
         }
 
         # It "It returns supported features" {

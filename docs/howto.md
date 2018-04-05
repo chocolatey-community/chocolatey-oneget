@@ -28,6 +28,6 @@ To register chocolatey source you need path (can be local path or http url) and 
 
 ```powershell
 $expectedName = "LocalProvider"
-$sourceLocation "C:\LocalChocolateyPackages"
+$sourceLocation = "C:\LocalChocolateyPackages"
 Register-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedName -Location $sourceLocation
 ```

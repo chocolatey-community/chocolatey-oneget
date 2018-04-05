@@ -5,7 +5,11 @@ function Get-PackageProviderName {
 function Initialize-Provider { 
     $chocoBinary = Join-Path $PSScriptRoot "\\chocolatey.dll"
     Add-Type -Path $chocoBinary
-    $Script:choco = [chocolatey.Lets]::GetChocolatey()
+}
+
+function Get-Chocolatey{ 
+    $choco = [chocolatey.Lets]::GetChocolatey()
+    return $choco
 }
 
 function Resolve-PackageSource {
@@ -37,17 +41,18 @@ function Add-PackageSource {
         $Trusted
     )
 
-    if(-not (Test-Path -path $Location)) {
-        ThrowError "System.ArgumentException" "Name"
+    if([string]::IsNullOrEmpty($Name)) {
+        ThrowError "System.ArgumentException" "Source Name is required"
         return
     }
 
-    if(-not (Test-Path -path $Location)) {
-        ThrowError "System.ArgumentException" "Location"
+    if([string]::IsNullOrEmpty($Location)) {
+        ThrowError "System.ArgumentException" "Source Location is required"
         return
     }
 
-    $Script:choco.Set({
+    $choco = Get-Chocolatey
+    $choco.Set({
         param($config)
 
         $config.CommandName = "source"
@@ -56,7 +61,7 @@ function Add-PackageSource {
         $config.Sources = $Location
         })
 
-    $Script:choco.Run()
+    $choco.Run()
 
     $created = New-Object PSCustomObject -Property (@{
         Name = $Name
@@ -182,6 +187,7 @@ function ThrowError(){
     )
 
     $exception = New-Object $exceptionType $exceptionMessage
-    $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "", "", $Null    
-    $CallerPSCmdlet.ThrowTerminatingError($errorRecord)
+    $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
+    $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "Chocolatey", $errorCategory, $Null    
+    $PSCmdlet.ThrowTerminatingError($errorRecord)
 }

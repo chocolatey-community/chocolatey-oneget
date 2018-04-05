@@ -5,7 +5,7 @@ $outputRepository = "$moduleName-OutputRepository"
 
 Task Default -Depends `
     Build,`
-    Test;
+    Test
 
 Task Build -Depends `
     Clean-OutputRepository,`
@@ -16,7 +16,7 @@ Task Build -Depends `
 
 Task Restore-Packages {
     Exec {
-        paket restore;
+        paket restore
     }
 }
 
