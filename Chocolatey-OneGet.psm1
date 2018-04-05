@@ -57,9 +57,19 @@ function Add-PackageSource {
         })
 
     $Script:choco.Run()
+
+    $created = New-Object PSCustomObject -Property (@{
+        Name = $Name
+        Location = $Location
+        Trusted = $False
+        Registered = $True
+    })
+
+    Write-Output -InputObject $created
 }
 
 function Remove-PackageSource {
+    [CmdletBinding()]
     param
     (
         [string]
@@ -70,6 +80,7 @@ function Remove-PackageSource {
 }
 
 function Find-Package {
+    [CmdletBinding()]
     param(
         [string]
         $Name,

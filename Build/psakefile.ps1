@@ -1,6 +1,7 @@
 $targetFolder = Join-Path $PSScriptRoot "Output"
-$moduleFolder = Join-Path $targetFolder "Chocolatey-OneGet"
-$outputRepository = "Chocolatey-OneGet-OutputRepository"
+$moduleName = "Chocolatey-OneGet"
+$moduleFolder = Join-Path $targetFolder $moduleName
+$outputRepository = "$moduleName-OutputRepository"
 
 Task Default -Depends `
     Build,`
@@ -22,13 +23,13 @@ Task Restore-Packages {
 Task Clean {
     Remove-Item $targetFolder -Force -Recurse -ErrorAction SilentlyContinue
     # This needs to kill the Visual Studio code powershell instance, otherwise the chocolatey.dll is locked.
-    $installedModule = "$home\Documents\WindowsPowerShell\Modules\Chocolatey-OneGet"
+    $installedModule = "$home\Documents\WindowsPowerShell\Modules\$moduleName"
     Remove-Item $installedModule -Force -Recurse -ErrorAction SilentlyContinue
 }
 
 Task Compile {
-    Copy-Item -Path "..\Chocolatey-OneGet.psd1" -Destination "$moduleFolder\Chocolatey-OneGet.psd1" -Force
-    Copy-Item -Path "..\Chocolatey-OneGet.psm1" -Destination "$moduleFolder\Chocolatey-OneGet.psm1" -Force
+    Copy-Item -Path "..\$moduleName.psd1" -Destination "$moduleFolder\$moduleName.psd1" -Force
+    Copy-Item -Path "..\$moduleName.psm1" -Destination "$moduleFolder\$moduleName.psm1" -Force
     Copy-Item -Path "..\packages\chocolatey.lib\lib\chocolatey.dll" -Destination "$moduleFolder\chocolatey.dll" -Force
     Copy-Item -Path "..\packages\log4net\lib\net40-client\log4net.dll" -Destination "$moduleFolder\log4net.dll" -Force
 
@@ -40,7 +41,7 @@ Task Clean-OutputRepository {
 }
 
 Task Register-OutputRepository {
-    mkdir "$targetFolder\Chocolatey-OneGet" -ErrorAction SilentlyContinue | Out-Null
+    mkdir "$targetFolder\$moduleName" -ErrorAction SilentlyContinue | Out-Null
 
     if((Get-PSRepository | Where-Object { $_.Name -eq $outputRepository}) -eq $null){
         Register-PSRepository -Name $outputRepository -SourceLocation $targetFolder -PublishLocation $targetFolder -InstallationPolicy Trusted | Out-Null
@@ -48,9 +49,9 @@ Task Register-OutputRepository {
 }
 
 Task Import-CompiledModule {
-    if((Get-Module -Name Chocolatey-OneGet) -eq $null){
-        Install-Module Chocolatey-OneGet -Repository $outputRepository -Force -AllowClobber -Scope "CurrentUser"
-        Import-Module Chocolatey-OneGet -Force
+    if((Get-Module -Name $moduleName) -eq $null){
+        Install-Module $moduleName -Repository $outputRepository -Force -AllowClobber -Scope "CurrentUser"
+        Import-Module $moduleName -Force -Scope Local
     }
 }
 

@@ -8,6 +8,8 @@ This is the official Chocolatey provider for PackageManagement.
 ## Native implementation
 This part contains plain PowerShell implementation of the provider, development is done only in this part.
 
+### [How to use it](/docs/howto.md)
+
 ### Prerequisities
 * Recommended development environement is visual Studio Code with PowerShell extension
 * Run build/prepareEnvironment.ps1 script to install all tools used for provider development, it installs used tools
