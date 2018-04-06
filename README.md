@@ -1,6 +1,7 @@
 # Chocolatey Provider for PowerShell PackageManagement
 
 This is the official Chocolatey provider for PackageManagement (aka OneGet).
+
 **NOTE:** For now, you may be more interested in using the ChocolateyGet provider as a stop gap solution until this provider is ready. See https://github.com/jianyunt/ChocolateyGet for details.
 
 ## Native powershell implementation
