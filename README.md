@@ -10,22 +10,10 @@ This part contains plain PowerShell implementation of the provider, development 
 
 ### [How to use it](/docs/howto.md)
 
-### Prerequisities
-* Recommended development environement is visual Studio Code with PowerShell extension
-* Run build/prepareEnvironment.ps1 script to install all tools used for provider development, it installs used tools
-* Used tools:
-  * Pester - powershell testing framework
-  * PackageManagement - Required dependency, we develop its plugin
-  * Chocolatey - chocolatey library API
-  * Paket - dependencies nuget packages downloader
-
-### Development
-* Run "Invoke-Psake" from build directory
-* Outcome is stored in "Build\Output"
-* Use "Invoke-Psake Publish" from build directory to publish into PsGet online repository
+### [Development](/docs/development.md)
 
 ## Progress
-Progress:
+
 * Implement metadata - DONE
 * Implement install able skeleton - DONE
 * Prepare build and test infrastructure - DONE
