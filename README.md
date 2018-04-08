@@ -10,7 +10,7 @@ This part contains plain PowerShell implementation of the provider, development 
 
 ### [How to use it](/docs/howto.md)
 
-### [Development](/docs/development.md)
+### [Development](/docs/contributing.md)
 
 ### Progress
 
