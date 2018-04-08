@@ -2,6 +2,7 @@ $targetFolder = Join-Path $PSScriptRoot "Output"
 $moduleName = "Chocolatey-OneGet"
 $moduleFolder = Join-Path $targetFolder $moduleName
 $outputRepository = "$moduleName-OutputRepository"
+$testsFilter = "*" # all by default
 
 Task Default -Depends `
     Build,`
@@ -57,7 +58,8 @@ Task Import-CompiledModule {
 
 Task Test -Depends Import-CompiledModule {
     # Run Pester tests
-    $testResults = Invoke-Pester ..\Tests\ModuleTests.ps1 -PassThru
+    $testResults = Invoke-Pester ..\Tests\ModuleTests.ps1 -PassThru -TestName $testsFilter
+
     if ($testResults.FailedCount -gt 0) {
         Write-Error -Message 'One or more Pester tests failed!'
     }
