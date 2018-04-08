@@ -62,9 +62,19 @@ function Add-PackageSource {
         param($config)
 
         $config.CommandName = "source"
-        $config.SourceCommand.Command = 2
+        $config.SourceCommand.Command = [chocolatey.infrastructure.app.domain.SourceCommandType]::add
         $config.SourceCommand.Name = $Name
         $config.Sources = $Location
+
+        # TODO load from dynamic options
+        # $config.SourceCommand.Username = source.UserName;
+        # $config.SourceCommand.Password = source.Password;
+        # $config.SourceCommand.Certificate = source.Certificate;
+        # $config.SourceCommand.CertificatePassword = source.CertificatePassword;
+        # $config.SourceCommand.Priority = source.Priority;
+        # $config.SourceCommand.BypassProxy = source.BypassProxy;
+        # $config.SourceCommand.AllowSelfService = source.AllowSelfService;
+        # $config.SourceCommand.VisibleToAdminsOnly = source.VisibleToAdminsOnly;
         })
 
     $choco.Run()
@@ -76,6 +86,7 @@ function Add-PackageSource {
         Registered = $True
     })
 
+    $created =  New-PackageSource -Name $Name -Location $Location -Trusted $False -Registered $True
     Write-Output -InputObject $created
 }
 
