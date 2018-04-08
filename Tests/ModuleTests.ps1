@@ -23,20 +23,38 @@ Describe "Imported module" {
 }
 
 Describe "Added packages source" {
-    BeforeEach {
+    BeforeAll { 
         Invoke-Expression "choco source remove -n=$expectedSourceName"
     }
 
-    AfterEach {
+    AfterAll {
         Invoke-Expression "choco source remove -n=$expectedSourceName"
     }
+
+    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $PSScriptRoot `
+    -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly
+    #Debug:
+    #Add-PackageSource -Name $expectedSourceName -Location $PSScriptRoot -Trusted $false
+
+    $registeredSource = choco source list | Where-Object { $_.Contains($expectedSourceName)}
 
     It "is saved in choco" {
-        Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $PSScriptRoot
-        #Debug:
-        #Add-PackageSource -Name $expectedSourceName -Location $PSScriptRoot -Trusted $false
-
-        $found = choco source list | Where-Object { $_.Contains($expectedSourceName)}
-        $found | Should -Not -Be $null
+        $registeredSource | Should -Not -Be $Null
     }
+
+    # It "saves Priority" {
+    #     $registeredSource | Should -Match "Priority 10"
+    # }
+
+    # It "saves BypassProxy" {
+    #     $registeredSource | Should -Match "Bypass Proxy - True"
+    # }
+
+    # It "saves AllowSelfService" {
+    #     $registeredSource | Should -Match "Self-Service - True"
+    # }
+
+    # It "saves VisibleToAdminsOnly" {
+    #     $registeredSource | Should -Match "Admin Only - True"
+    # }
 }

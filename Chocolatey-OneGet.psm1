@@ -13,9 +13,26 @@ function Get-Feature {
     Write-Output -InputObject (New-Feature -name "uri-schemes" -values @("http", "https", "file"))
 }
 
-function Get-Chocolatey{ 
-    $choco = [chocolatey.Lets]::GetChocolatey()
-    return $choco
+function Get-DynamicOptions{
+    param(
+        [Microsoft.PackageManagement.MetaProvider.PowerShell.OptionCategory]
+        $category
+    )
+
+    Write-Debug ("Get-DynamicOptions")      
+    switch($category){
+        Source {
+            # $config.SourceCommand.Username = source.UserName;
+            # $config.SourceCommand.Password = source.Password;
+            # $config.SourceCommand.Certificate = source.Certificate;
+            # $config.SourceCommand.CertificatePassword = source.CertificatePassword;
+
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name "Priority" -ExpectedType int -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name "BypassProxy" -ExpectedType switch -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name "AllowSelfService" -ExpectedType switch -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name "VisibleToAdminsOnly" -ExpectedType switch -IsRequired $false)
+        }
+    }
 }
 
 function Resolve-PackageSource {
@@ -183,6 +200,13 @@ function Download-Package {
      #TODO
 }
 
+#region Helper functions
+
+function Get-Chocolatey{ 
+    $choco = [chocolatey.Lets]::GetChocolatey()
+    return $choco
+}
+
 function ThrowError(){
     [CmdletBinding()]
     param(
@@ -202,3 +226,5 @@ function ThrowError(){
     $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "Chocolatey", $errorCategory, $Null    
     $PSCmdlet.ThrowTerminatingError($errorRecord)
 }
+
+#endregion
