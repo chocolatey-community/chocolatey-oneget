@@ -7,6 +7,12 @@ function Initialize-Provider {
     Add-Type -Path $chocoBinary
 }
 
+function Get-Feature {
+    # New-Feature commes from PackageProvider functions
+    Write-Output -InputObject (New-Feature -name "file-extensions" -values @(".nupkg"))
+    Write-Output -InputObject (New-Feature -name "uri-schemes" -values @("http", "https", "file"))
+}
+
 function Get-Chocolatey{ 
     $choco = [chocolatey.Lets]::GetChocolatey()
     return $choco
@@ -165,12 +171,6 @@ function Download-Package {
 
      #TODO
 }
-
-# TODO ensure it is part of provider API
-# function Get-Feature {
-#     Write-Output -InputObject (New-Feature -name "file-extensions" -values @(".nupkg"))
-#     Write-Output -InputObject (New-Feature -name "uri-schemes" -values @("http", "https", "file"))
-# }
 
 function ThrowError(){
     [CmdletBinding()]
