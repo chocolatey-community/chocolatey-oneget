@@ -1,3 +1,8 @@
+$optionPriority = "Priority"
+$optionBypassProxy = "BypassProxy"
+$optionAllowSelfService = "AllowSelfService"
+$optionVisibleToAdminsOnly = "VisibleToAdminsOnly"
+
 function Get-PackageProviderName { 
     return "Chocolatey-OneGet"
 }
@@ -27,10 +32,10 @@ function Get-DynamicOptions{
             # $config.SourceCommand.Certificate = source.Certificate;
             # $config.SourceCommand.CertificatePassword = source.CertificatePassword;
 
-            Write-Output -InputObject (New-DynamicOption -Category $category -Name "Priority" -ExpectedType int -IsRequired $false)
-            Write-Output -InputObject (New-DynamicOption -Category $category -Name "BypassProxy" -ExpectedType switch -IsRequired $false)
-            Write-Output -InputObject (New-DynamicOption -Category $category -Name "AllowSelfService" -ExpectedType switch -IsRequired $false)
-            Write-Output -InputObject (New-DynamicOption -Category $category -Name "VisibleToAdminsOnly" -ExpectedType switch -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPriority -ExpectedType int -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionBypassProxy -ExpectedType switch -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionAllowSelfService -ExpectedType switch -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionVisibleToAdminsOnly -ExpectedType switch -IsRequired $false)
         }
     }
 }
@@ -74,6 +79,11 @@ function Add-PackageSource {
         return
     }
 
+    $priority = ParseDynamicOption $optionPriority 0
+    $bypassProxy = ParseDynamicOption $optionBypassProxy $False
+    $allowSelfService = ParseDynamicOption $optionAllowSelfService $False
+    $visibleToAdminsOnly = ParseDynamicOption $optionVisibleToAdminsOnly $False
+
     $choco = Get-Chocolatey
     $choco.Set({
         param($config)
@@ -88,11 +98,12 @@ function Add-PackageSource {
         # $config.SourceCommand.Password = source.Password;
         # $config.SourceCommand.Certificate = source.Certificate;
         # $config.SourceCommand.CertificatePassword = source.CertificatePassword;
-        # $config.SourceCommand.Priority = source.Priority;
-        # $config.SourceCommand.BypassProxy = source.BypassProxy;
-        # $config.SourceCommand.AllowSelfService = source.AllowSelfService;
-        # $config.SourceCommand.VisibleToAdminsOnly = source.VisibleToAdminsOnly;
-        })
+
+        $config.SourceCommand.Priority = $priority
+        $config.SourceCommand.BypassProxy = $bypassProxy
+        $config.SourceCommand.AllowSelfService = $allowSelfService
+        $config.SourceCommand.VisibleToAdminsOnly = $visibleToAdminsOnly
+    })
 
     $choco.Run()
 
@@ -205,6 +216,23 @@ function Download-Package {
 function Get-Chocolatey{ 
     $choco = [chocolatey.Lets]::GetChocolatey()
     return $choco
+}
+
+function ParseDynamicOption() {
+    param(
+        [string]
+        $optionName,
+
+        $defaultValue
+    )
+
+    $options = $request.Options
+
+    if($options.ContainsKey($optionName)){
+        return $options[$optionName]
+    }
+
+    return $defaultValue
 }
 
 function ThrowError(){

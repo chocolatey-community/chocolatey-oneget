@@ -42,19 +42,20 @@ Describe "Added packages source" {
         $registeredSource | Should -Not -Be $Null
     }
 
-    # It "saves Priority" {
-    #     $registeredSource | Should -Match "Priority 10"
-    # }
+    It "saves Priority" {
+        $registeredSource | Should -Match "Priority 10"
+    }
 
-    # It "saves BypassProxy" {
-    #     $registeredSource | Should -Match "Bypass Proxy - True"
-    # }
+    It "saves BypassProxy" {
+        $registeredSource | Should -Match "Bypass Proxy - True"
+    }
 
-    # It "saves AllowSelfService" {
-    #     $registeredSource | Should -Match "Self-Service - True"
-    # }
+    It "saves AllowSelfService" {
+        $registeredSource | Should -Match "Self-Service - True"
+    }
 
-    # It "saves VisibleToAdminsOnly" {
-    #     $registeredSource | Should -Match "Admin Only - True"
-    # }
+    # Requires business edition
+    It "saves VisibleToAdminsOnly" -Skip {
+        $registeredSource | Should -Match "Admin Only - True"
+    }
 }
