@@ -31,3 +31,10 @@ $expectedName = "LocalProvider"
 $sourceLocation = "C:\LocalChocolateyPackages"
 Register-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedName -Location $sourceLocation
 ```
+
+Register package source supports all other options you can use from chocolatey command line. All options to register package source are optional. How to use the dynamic options see related documentation. Following example shows how to use the extra parameters
+
+```
+Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $PSScriptRoot `
+    -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly
+```
