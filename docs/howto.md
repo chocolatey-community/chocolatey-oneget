@@ -35,6 +35,6 @@ Register-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedName -Loca
 Register package source supports all other options you can use from chocolatey command line. All options to register package source are optional. How to use the dynamic options see related documentation. Following example shows how to use the extra parameters
 
 ```powershell
-Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $PSScriptRoot `
+Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedName -Location $sourceLocation `
     -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly
 ```
