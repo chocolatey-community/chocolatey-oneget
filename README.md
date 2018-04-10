@@ -14,20 +14,20 @@ This part contains plain PowerShell implementation of the provider, development 
 
 ### Progress
 
-* Implement metadata - DONE
-* Implement install able skeleton - DONE
-* Prepare build and test infrastructure - DONE
+* [x] Implement metadata
+* [x] Implement install able skeleton
+* [x] Prepare build and test infrastructure
 * API:
-  * Get-ProviderName - DONE
-  * Initialize-Provider - DONE
-  * Find-Package - TODO
-  * Install-Package - TODO
-  * Get-InstalledPackage - TODO
-  * UnInstall-Package - TODO
-  * Download-Package - TODO
-  * Resolve-PackageSource - TODO
-  * Add-PackageSource - IN PROGRESS
-  * Remove-PackageSource - TODO
+  * [x] Get-ProviderName
+  * [x] Initialize-Provider
+  * [] Find-Package
+  * [] Install-Package
+  * [] Get-InstalledPackage
+  * [] UnInstall-Package
+  * [] Download-Package
+  * [] Resolve-PackageSource
+  * [] Add-PackageSource - IN PROGRESS
+  * [] Remove-PackageSource
 
 ## C# implementation - OBSOLETE
 
