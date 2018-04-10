@@ -32,9 +32,26 @@ $sourceLocation = "C:\LocalChocolateyPackages"
 Register-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedName -Location $sourceLocation
 ```
 
-Register package source supports all other options you can use from chocolatey command line. All options to register package source are optional. How to use the dynamic options see related documentation. Following example shows how to use the extra parameters
+Register package source supports all other options you can use from chocolatey command line. All options to register package source are optional. How to use the dynamic options see related documentation. Following example shows how to use the extra parameters.
 
 ```powershell
 Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedName -Location $sourceLocation `
     -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly
+```
+
+> **NOTE**: All additional parameters used in this provider follow the chocolatey command line options, so for more details about their usage values, refer directly to [chocolatey documentation](https://github.com/chocolatey/choco/wiki/CommandsReference).
+
+If your package source needs authenticate you can use credentials powershell object (as standard One-Get parameter) or crertificate via additional parameters. Both have the same behavior like chocolatey command line.
+
+```powershell
+$credentials = Get-Credential
+Register-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedName -Location $sourceLocation -Credential $credentials
+```
+
+or if your source needs certificate based authentication
+
+```powershell
+$certificate = "C:\Users\bob\Documents\bob.pfx"
+$certificatePassword = "CertitificatePassword"
+Register-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedName -Location $sourceLocation -Certificate  $certificate -CertificatePassword $certificatePassword
 ```

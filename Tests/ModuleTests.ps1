@@ -1,8 +1,6 @@
 $chocolateyOneGet = "Chocolatey-OneGet"
-$expectedSourceName = "Chocolatey-TestScriptRoot"
 # If import failed, chocolatey.dll is locked and is necessary to reload powershell
 Import-PackageProvider $chocolateyOneGet -force
-#Initialize-Provider
 
 Describe "Imported module" {
     $provider = Get-PackageProvider -Name $chocolateyOneGet
@@ -23,18 +21,28 @@ Describe "Imported module" {
 }
 
 Describe "Added packages source" {
+    $expectedSourceName = "Chocolatey-TestScriptRoot"
+    $expectedCertificateSource = "Chocolatey-CertificateTestScriptRoot"
+
     BeforeAll { 
         Invoke-Expression "choco source remove -n=$expectedSourceName"
+        Invoke-Expression "choco source remove -n=$expectedCertificateSource"
     }
 
     AfterAll {
         Invoke-Expression "choco source remove -n=$expectedSourceName"
+        Invoke-Expression "choco source remove -n=$expectedCertificateSource"
     }
+    
+    $userPassword = "UserPassword" | ConvertTo-SecureString -AsPlainText -Force
+    $credentials = new-object -typename System.Management.Automation.PSCredential -argumentlist "UserName", $userPassword
 
     Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $PSScriptRoot `
-    -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly
-    #Debug:
-    #Add-PackageSource -Name $expectedSourceName -Location $PSScriptRoot -Trusted $false
+                        -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly `
+                        -Credential $credentials
+
+    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedCertificateSource -Location $PSScriptRoot `
+                        -Certificate "testCertificate" -CertificatePassword "testCertificatePassword"
 
     $registeredSource = choco source list | Where-Object { $_.Contains($expectedSourceName)}
 
@@ -57,5 +65,15 @@ Describe "Added packages source" {
     # Requires business edition
     It "saves VisibleToAdminsOnly" -Skip {
         $registeredSource | Should -Match "Admin Only - True"
+    }
+
+    # TODO how to test the user name was used or certificate was used properly?
+    It "saves user credential properties" {
+        $registeredSource | Should -Match "(Authenticated)"
+    }
+
+    It "saves user certificate properties" {
+        $certificateSource = choco source list | Where-Object { $_.Contains($expectedCertificateSource)}
+        $certificateSource | Should -Match "(Authenticated)"
     }
 }

@@ -2,6 +2,8 @@ $optionPriority = "Priority"
 $optionBypassProxy = "BypassProxy"
 $optionAllowSelfService = "AllowSelfService"
 $optionVisibleToAdminsOnly = "VisibleToAdminsOnly"
+$optionCertificate = "Certificate"
+$optionCertificatePassword = "CertificatePassword"
 
 function Get-PackageProviderName { 
     return "Chocolatey-OneGet"
@@ -27,15 +29,12 @@ function Get-DynamicOptions{
     Write-Debug ("Get-DynamicOptions")      
     switch($category){
         Source {
-            # $config.SourceCommand.Username = source.UserName;
-            # $config.SourceCommand.Password = source.Password;
-            # $config.SourceCommand.Certificate = source.Certificate;
-            # $config.SourceCommand.CertificatePassword = source.CertificatePassword;
-
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPriority -ExpectedType int -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionBypassProxy -ExpectedType switch -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionAllowSelfService -ExpectedType switch -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionVisibleToAdminsOnly -ExpectedType switch -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionCertificate -ExpectedType string -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionCertificatePassword -ExpectedType string -IsRequired $false)
         }
     }
 }
@@ -83,6 +82,8 @@ function Add-PackageSource {
     $bypassProxy = ParseDynamicOption $optionBypassProxy $False
     $allowSelfService = ParseDynamicOption $optionAllowSelfService $False
     $visibleToAdminsOnly = ParseDynamicOption $optionVisibleToAdminsOnly $False
+    $certificate = ParseDynamicOption $optionCertificate ""
+    $certificatePassword = ParseDynamicOption $optionCertificatePassword ""
 
     $choco = Get-Chocolatey
     $choco.Set({
@@ -92,17 +93,19 @@ function Add-PackageSource {
         $config.SourceCommand.Command = [chocolatey.infrastructure.app.domain.SourceCommandType]::add
         $config.SourceCommand.Name = $Name
         $config.Sources = $Location
-
-        # TODO load from dynamic options
-        # $config.SourceCommand.Username = source.UserName;
-        # $config.SourceCommand.Password = source.Password;
-        # $config.SourceCommand.Certificate = source.Certificate;
-        # $config.SourceCommand.CertificatePassword = source.CertificatePassword;
-
         $config.SourceCommand.Priority = $priority
         $config.SourceCommand.BypassProxy = $bypassProxy
         $config.SourceCommand.AllowSelfService = $allowSelfService
         $config.SourceCommand.VisibleToAdminsOnly = $visibleToAdminsOnly
+        $config.SourceCommand.Certificate = $certificate
+        $config.SourceCommand.CertificatePassword = $certificatePassword
+
+        $credential = $request.Credential
+        
+        if ($credential -ne $Null){
+            $config.SourceCommand.Username = $credential.UserName
+            $config.SourceCommand.Password = $credential.GetNetworkCredential().Password
+        }
     })
 
     $choco.Run()
