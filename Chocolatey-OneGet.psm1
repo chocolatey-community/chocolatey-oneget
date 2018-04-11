@@ -150,7 +150,21 @@ function Remove-PackageSource {
         $Name
     )
 
-    #TODO
+    if([string]::IsNullOrEmpty($Name)) {
+        ThrowError "System.ArgumentException" "Source Name is required"
+        return
+    }
+
+    $choco = Get-Chocolatey
+    $choco.Set({
+        param($config)
+
+        $config.CommandName = "source"
+        $config.SourceCommand.Command = [chocolatey.infrastructure.app.domain.SourceCommandType]::remove
+        $config.SourceCommand.Name = $Name
+    });
+
+    $choco.Run()
 }
 
 function Find-Package {

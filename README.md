@@ -20,14 +20,14 @@ This part contains plain PowerShell implementation of the provider, development 
 * API:
   * [x] Get-ProviderName
   * [x] Initialize-Provider
-  * [ ] Find-Package
+  * [x] Resolve-PackageSource
+  * [x] Add-PackageSource
+  * [x] Remove-PackageSource
+  * [ ] Find-Package - IN PROGRESS
   * [ ] Install-Package
   * [ ] Get-InstalledPackage
   * [ ] UnInstall-Package
   * [ ] Download-Package
-  * [x] Resolve-PackageSource
-  * [x] Add-PackageSource
-  * [ ] Remove-PackageSource - IN PROGRESS
 
 Not implemented
 * Trusted package sources

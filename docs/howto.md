@@ -27,15 +27,15 @@ Get-PackageProvider -Name Chocolatey-OneGet
 To register chocolatey source you need path (can be local path or http url) and name for the new source.
 
 ```powershell
-$expectedName = "LocalProvider"
+$sourceName = "LocalProvider"
 $sourceLocation = "C:\LocalChocolateyPackages"
-Register-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedName -Location $sourceLocation
+Register-PackageSource -ProviderName Chocolatey-OneGet -Name $sourceName -Location $sourceLocation
 ```
 
 Register package source supports all other options you can use from chocolatey command line. All options to register package source are optional. How to use the dynamic options see related documentation. Following example shows how to use the extra parameters.
 
 ```powershell
-Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedName -Location $sourceLocation `
+Register-PackageSource -ProviderName $chocolateyOneGet -Name $sourceName -Location $sourceLocation `
     -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly
 ```
 
@@ -45,7 +45,7 @@ If your package source needs authenticate you can use credentials powershell obj
 
 ```powershell
 $credentials = Get-Credential
-Register-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedName -Location $sourceLocation -Credential $credentials
+Register-PackageSource -ProviderName Chocolatey-OneGet -Name $sourceName -Location $sourceLocation -Credential $credentials
 ```
 
 or if your source needs certificate based authentication
@@ -53,7 +53,7 @@ or if your source needs certificate based authentication
 ```powershell
 $certificate = "C:\Users\bob\Documents\bob.pfx"
 $certificatePassword = "CertitificatePassword"
-Register-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedName -Location $sourceLocation -Certificate  $certificate -CertificatePassword $certificatePassword
+Register-PackageSource -ProviderName Chocolatey-OneGet -Name $sourceName -Location $sourceLocation -Certificate  $certificate -CertificatePassword $certificatePassword
 ```
 
 ## 3. List registered package sources
@@ -64,4 +64,12 @@ To see all already registered package sources
 ```powershell
 $filter = "*Company*"
 Get-PackageSource -ProviderName Chocolatey-OneGet $filter
+```
+
+## 4. Unregister package source
+
+To remove package source, you only need to know the source name. Package source can be simply removed by
+
+```powershell
+Unregister-PackageSource -ProviderName Chocolatey-OneGet -Name $sourceName
 ```
