@@ -4,6 +4,8 @@ $optionAllowSelfService = "AllowSelfService"
 $optionVisibleToAdminsOnly = "VisibleToAdminsOnly"
 $optionCertificate = "Certificate"
 $optionCertificatePassword = "CertificatePassword"
+$script:wildcardOptions = [System.Management.Automation.WildcardOptions]::CultureInvariant -bor `
+                          [System.Management.Automation.WildcardOptions]::IgnoreCase
 
 function Get-PackageProviderName { 
     return "Chocolatey-OneGet"
@@ -46,12 +48,31 @@ function Resolve-PackageSource {
         $SourceName = "*"
     }
 
-    foreach($src in $SourceName) {
+    $choco = Get-Chocolatey
+    $choco.Set({
+        param($config)
+
+        $config.CommandName = "source"
+        $config.SourceCommand.Command = [chocolatey.infrastructure.app.domain.SourceCommandType]::list
+        $config.QuietOutput = $True
+    });
+
+    $method = $choco.GetType().GetMethod("List")
+    $gMethod = $method.MakeGenericMethod([chocolatey.infrastructure.app.configuration.ChocolateySource]) 
+    $registered = $gMethod.Invoke($choco, $Null)
+    
+    foreach($pattern in $SourceName){
         if($request.IsCanceled) { 
             return;
         }
 
-        #TODO load and call chocolatey
+        $wildcardPattern = New-Object System.Management.Automation.WildcardPattern $pattern, $script:wildcardOptions
+        $filtered = $registered | Where-Object { $wildcardPattern.IsMatch($_.Id) }
+
+        ForEach($source in $filtered){
+            $packageSource = New-PackageSource -Name $source.Id -Location $source.Value -Trusted $False -Registered $True
+            Write-Output -InputObject $packageSource
+        }
     }
 }
 

@@ -25,9 +25,13 @@ This part contains plain PowerShell implementation of the provider, development 
   * [ ] Get-InstalledPackage
   * [ ] UnInstall-Package
   * [ ] Download-Package
-  * [ ] Resolve-PackageSource - IN PROGRESS
+  * [x] Resolve-PackageSource
   * [x] Add-PackageSource
-  * [ ] Remove-PackageSource
+  * [ ] Remove-PackageSource - IN PROGRESS
+
+Not implemented
+* Trusted package sources
+* Disable package source
 
 ## C# implementation - OBSOLETE
 

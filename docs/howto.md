@@ -55,3 +55,13 @@ $certificate = "C:\Users\bob\Documents\bob.pfx"
 $certificatePassword = "CertitificatePassword"
 Register-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedName -Location $sourceLocation -Certificate  $certificate -CertificatePassword $certificatePassword
 ```
+
+## 3. List registered package sources
+
+By default chocolatey installs default package source. When you install this provider only, no package source is added by default. Purpose for this is enterprice environment, where comapnies want to use their local package source only. Wildcards are supported in source names. When no filter is provided all sources are returned.
+To see al already registered package sources
+
+```powershell
+$filter = "*Company*"
+Get-PackageSource -ProviderName Chocolatey-OneGet $filter
+```

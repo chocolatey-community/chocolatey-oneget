@@ -1,4 +1,7 @@
 $chocolateyOneGet = "Chocolatey-OneGet"
+$expectedSourceName = "Chocolatey-TestScriptRoot"
+$expectedCertificateSource = "Chocolatey-CertificateTestScriptRoot"
+
 # If import failed, chocolatey.dll is locked and is necessary to reload powershell
 Import-PackageProvider $chocolateyOneGet -force
 
@@ -21,9 +24,6 @@ Describe "Imported module" {
 }
 
 Describe "Added packages source" {
-    $expectedSourceName = "Chocolatey-TestScriptRoot"
-    $expectedCertificateSource = "Chocolatey-CertificateTestScriptRoot"
-
     BeforeAll { 
         Invoke-Expression "choco source remove -n=$expectedSourceName"
         Invoke-Expression "choco source remove -n=$expectedCertificateSource"
@@ -67,7 +67,7 @@ Describe "Added packages source" {
         $registeredSource | Should -Match "Admin Only - True"
     }
 
-    # TODO how to test the user name was used or certificate was used properly?
+    # Not possible to test user name value was set propertly this way
     It "saves user credential properties" {
         $registeredSource | Should -Match "(Authenticated)"
     }
@@ -75,5 +75,30 @@ Describe "Added packages source" {
     It "saves user certificate properties" {
         $certificateSource = choco source list | Where-Object { $_.Contains($expectedCertificateSource)}
         $certificateSource | Should -Match "(Authenticated)"
+    }
+}
+
+Describe "Get package sources" {
+    BeforeAll { 
+        Invoke-Expression "choco source add -n=$expectedSourceName -s=""$PSScriptRoot"""
+        Invoke-Expression "choco source add -n=$expectedCertificateSource -s=""$PSScriptRoot"""
+    }
+
+    AfterAll { 
+        Invoke-Expression "choco source remove -n=$expectedSourceName"
+        Invoke-Expression "choco source remove -n=$expectedCertificateSource"
+    }
+
+    $registeredSources = Get-PackageSource -ProviderName $chocolateyOneGet
+    $filteredSources = Get-PackageSource -ProviderName $chocolateyOneGet $expectedCertificateSource*
+
+    It "lists all registered sources" {
+        $resolved = $registeredSources | Where-Object { $_.Name -eq $expectedSourceName }
+        $resolved | Should -Not -Be $Null
+    }
+
+    It "lists only sources by wildcard" {
+        $resolved = $filteredSources | Where-Object { $_.Name -eq $expectedCertificateSource }
+        $resolved.Count | Should -Be 1 
     }
 }
