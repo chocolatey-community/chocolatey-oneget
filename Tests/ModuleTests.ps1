@@ -94,7 +94,7 @@ Describe "Get package sources" {
 
     It "lists all registered sources" {
         $resolved = $registeredSources | Where-Object { $_.Name -eq $expectedSourceName }
-        $resolved | Should -Not -Be $Null
+        $resolved -ne $Null -and $registeredSources.Count -ge 2 | Should -Be $True
     }
 
     It "lists only sources by wildcard" {
