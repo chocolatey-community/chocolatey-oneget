@@ -13,7 +13,8 @@ Task Build -Depends `
     Clean,`
     Restore-Packages,`
     Register-OutputRepository, `
-    Compile
+    Compile, `
+    Compile-TestPackage
 
 Task Restore-Packages {
     Exec {
@@ -53,6 +54,12 @@ Task Import-CompiledModule {
     if((Get-Module -Name $moduleName) -eq $null){
         Install-Module $moduleName -Repository $outputRepository -Force -AllowClobber -Scope "CurrentUser"
         Import-Module $moduleName -Force -Scope Local
+    }
+}
+
+Task Compile-TestPackage {
+    Exec {
+        choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $targetFolder
     }
 }
 
