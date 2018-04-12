@@ -67,7 +67,7 @@ function Resolve-PackageSource {
         }
 
         $wildcardPattern = New-Object System.Management.Automation.WildcardPattern $pattern, $script:wildcardOptions
-        $filtered = $registered | Where-Object { $wildcardPattern.IsMatch($_.Id) }
+        $filtered = $registered | Where-Object { $wildcardPattern.IsMatch($_.Id) -or $wildcardPattern.IsMatch($_.Value) }
 
         ForEach($source in $filtered){
             $packageSource = New-PackageSource -Name $source.Id -Location $source.Value -Trusted $False -Registered $True

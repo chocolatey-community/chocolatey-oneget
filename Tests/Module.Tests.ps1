@@ -3,7 +3,7 @@ $expectedSourceName = "Chocolatey-TestScriptRoot"
 $expectedCertificateSource = "Chocolatey-CertificateTestScriptRoot"
 
 # If import failed, chocolatey.dll is locked and is necessary to reload powershell
-Import-PackageProvider $chocolateyOneGet -force
+# Import-PackageProvider $chocolateyOneGet -force
 
 function Get-ChocolateySource(){
     return choco source list | Where-Object { $_.Contains($expectedSourceName)}
@@ -93,17 +93,21 @@ Describe "Get package sources" {
         Invoke-Expression "choco source remove -n=$expectedCertificateSource"
     }
 
-    $registeredSources = Get-PackageSource -ProviderName $chocolateyOneGet
-    $filteredSources = Get-PackageSource -ProviderName $chocolateyOneGet $expectedCertificateSource*
-
     It "lists all registered sources" {
+        $registeredSources = Get-PackageSource -ProviderName $chocolateyOneGet
         $resolved = $registeredSources | Where-Object { $_.Name -eq $expectedSourceName }
         $resolved -ne $Null -and $registeredSources.Count -ge 2 | Should -Be $True
     }
 
     It "lists only sources by wildcard" {
+        $filteredSources = Get-PackageSource -ProviderName $chocolateyOneGet $expectedCertificateSource*
         $resolved = $filteredSources | Where-Object { $_.Name -eq $expectedCertificateSource }
         $resolved.Count | Should -Be 1 
+    }
+
+    It "lists sources by location" {
+        $byPathSources = Get-PackageSource -ProviderName $chocolateyOneGet -Location $PSScriptRoot
+        $byPathSources.Count | Should -Be 2
     }
 }
 
@@ -116,9 +120,8 @@ Describe "Unregister package source" {
         Invoke-Expression "choco source remove -n=$expectedSourceName"
     }
 
-    Unregister-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedSourceName
-
     It "is removed" {
+        Unregister-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedSourceName
         $registeredSource = Get-ChocolateySource
         $registeredSource | Should -Be $Null
     }

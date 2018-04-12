@@ -58,7 +58,7 @@ Task Import-CompiledModule {
 
 Task Test -Depends Import-CompiledModule {
     # Run Pester tests
-    $testResults = Invoke-Pester ..\Tests\ModuleTests.ps1 -PassThru -TestName $testsFilter
+    $testResults = Invoke-Pester ../Tests/* -PassThru -TestName $testsFilter
 
     if ($testResults.FailedCount -gt 0) {
         Write-Error -Message 'One or more Pester tests failed!'
