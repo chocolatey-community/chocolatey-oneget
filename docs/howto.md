@@ -2,19 +2,39 @@
 
 ## 1. Install the module
 
-You can install the module from PowershellGet online repository:
+> **NOTE:** This module requires chocolatey application to be installed.
+
+To install the provider follow one of these scenarios
+
+### Online install
+
+You can install the module directly from PowershellGet online repository:
 
 ```powershell
 Import-Module -Name PackageManagement
 Install-Module -Name Chocolatey-OneGet
-```
-
-You can also copy the provider directory to your modules folder, when the online galery isnt available (usually "$home\WindowsPowerShell\Modules").
-
-```powershell
 Import-Module Chocolatey-OneGet
 Import-PackageProvider -Name Chocolatey-OneGet
 ```
+
+### Offline install
+
+1. Download chocolatey package from https://chocolatey.org/packages/chocolatey
+2. Download Chocolatey-OneGet provider package from ```TODO add link```
+3. Execute following script from current directory, where the downloaded files reside
+
+```powershell
+Copy-Item .\chocolatey.0.10.9.nupkg chocolatey.0.10.9.zip
+Expand-Archive .\chocolatey.0.10.9.zip
+.\chocolatey.0.10.9\tools\chocolateyInstall.ps1
+Register-PackageSource -ProviderName PowerShellGet -Name Downloaded  -Location $pwd
+Install-Package chocolatey-oneget -Source Downloaded
+Unregister-PackageSource -ProviderName PowerShellGet Downloaded
+Import-Module Chocolatey-OneGet
+Import-PackageProvider -Name Chocolatey-OneGet
+```
+
+> **NOTE:** If chocolatey is already installed, it is enough to copy the provider directory to your modules folder (usually "$HOME\Documents\WindowsPowerShell\Modules\").
 
 To verify the provider is available:
 
@@ -39,7 +59,7 @@ Register-PackageSource -ProviderName $chocolateyOneGet -Name $sourceName -Locati
     -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly
 ```
 
-> **NOTE**: All additional parameters used in this provider follow the chocolatey command line options, so for more details about their values usage, refer directly to [chocolatey documentation](https://github.com/chocolatey/choco/wiki/CommandsReference).
+> **NOTE:** All additional parameters used in this provider follow the chocolatey command line options, so for more details about their values usage, refer directly to [chocolatey documentation](https://github.com/chocolatey/choco/wiki/CommandsReference).
 
 If your package source needs authenticate you can use credentials powershell object (as standard One-Get parameter) or crertificate via additional parameters. Both have the same behavior like chocolatey command line.
 
