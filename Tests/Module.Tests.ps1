@@ -1,6 +1,7 @@
 $chocolateyOneGet = "Chocolatey-OneGet"
 $expectedSourceName = "Chocolatey-TestScriptRoot"
 $expectedCertificateSource = "Chocolatey-CertificateTestScriptRoot"
+$testPackageName = "TestPackage"
 
 # If import failed, chocolatey.dll is locked and is necessary to reload powershell
 # Import-PackageProvider $chocolateyOneGet -force
@@ -124,5 +125,23 @@ Describe "Unregister package source" {
         Unregister-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedSourceName
         $registeredSource = Get-ChocolateySource
         $registeredSource | Should -Be $Null
+    }
+}
+
+Describe "Find package" {
+    BeforeAll { 
+        $buildOutput = Join-Path $PSScriptRoot "..\Build\Output"
+        $buildOutput = $(Resolve-Path $buildOutput).Path
+        Invoke-Expression "choco source add -n=""$expectedSourceName"" -s=""$buildOutput"""
+    }
+
+    AfterAll { 
+        Invoke-Expression "choco source remove -n=$expectedSourceName"
+    }
+
+    It "finds all packages" {
+        # TODO no package sources use case - chocolatey expects source
+        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Source $expectedSourceName -Verbose
+        $found.Count | Should -Be 1 # there are two, but only one fits the criteria
     }
 }

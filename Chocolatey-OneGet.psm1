@@ -182,8 +182,43 @@ function Find-Package {
         [string]
         $MaximumVersion
     )
+    
+    # if(-Not $Name){
+    #     $Name = ""
+    # }
 
-    #TODO
+    $source = ""
+    if(-Not [String]::IsNullOrEmpty($Request.PackageSources)){
+        $source = [String]::Join(";", $Request.PackageSources)
+    }
+    
+    $choco = Get-Chocolatey
+    $choco.Set({
+        param($config)
+
+        $config.CommandName = "list"
+        $config.Input = $Name
+        $config.Sources = $source 
+        
+        if(-Not $RequiredVersion){
+            #$config.Version = $RequiredVersion
+        }
+        
+        #$config.AllVersions = $True
+    })
+        
+    $method = $choco.GetType().GetMethod("List")
+    $gMethod = $method.MakeGenericMethod([chocolatey.infrastructure.results.PackageResult]) 
+    $packages = $gMethod.Invoke($choco, $Null)
+
+    foreach($found in $packages){
+        if($request.IsCanceled) { 
+            return
+        } 
+
+        $identity = New-SoftwareIdentity "fastPackageReference"  $found.Name $found.Version  "semver"  $source  $found.Description        
+        Write-Output $identity
+    } 
 }
 
 function Get-InstalledPackage {
