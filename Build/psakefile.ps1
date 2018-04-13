@@ -2,7 +2,7 @@ $targetFolder = Join-Path $PSScriptRoot "Output"
 $moduleName = "Chocolatey-OneGet"
 $moduleFolder = Join-Path $targetFolder $moduleName
 $outputRepository = "$moduleName-OutputRepository"
-$testsFilter = "*" # all by default
+$testsFilter = "Find package" # all by default
 
 Task Default -Depends `
     Build,`
