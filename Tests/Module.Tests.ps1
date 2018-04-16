@@ -130,7 +130,7 @@ Describe "Unregister package source" {
 
 Describe "Find package" {
     BeforeAll { 
-        $buildOutput = Join-Path $PSScriptRoot "..\Build\Output"
+        $buildOutput = Join-Path $PSScriptRoot "..\Build\Output\TestPackages"
         $buildOutput = $(Resolve-Path $buildOutput).Path
         Invoke-Expression "choco source add -n=""$expectedSourceName"" -s=""$buildOutput"""
     }
@@ -139,9 +139,32 @@ Describe "Find package" {
         Invoke-Expression "choco source remove -n=$expectedSourceName"
     }
 
-    It "finds all packages" {
-        # TODO no package sources use case - chocolatey expects source
-        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Source $expectedSourceName -Verbose
-        $found.Count | Should -Be 1 # there are two, but only one fits the criteria
+    It "finds package in Source" {
+        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Source $expectedSourceName
+        $found.Count | Should -Be 1
+    }
+
+    It "finds all packages from all sources" -Skip {
+        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet
+        $found.Count | Should -Be 2
+    }
+
+    It "finds package by min. version" -Skip {
+    
+    }
+
+    It "finds package by max. version" -Skip {
+    
+    }
+
+    It "finds package by required version" -Skip {
+    
+    }
+
+    It "finds package by tags" -Skip {
+    
+    }
+
+    It "finds prerelease version package" -Skip {
     }
 }

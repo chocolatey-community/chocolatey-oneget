@@ -43,7 +43,7 @@ Task Clean-OutputRepository {
 }
 
 Task Register-OutputRepository {
-    mkdir "$targetFolder\$moduleName" -ErrorAction SilentlyContinue | Out-Null
+    mkdir "$targetFolder\$moduleName" | Out-Null
 
     if((Get-PSRepository | Where-Object { $_.Name -eq $outputRepository}) -eq $null){
         Register-PSRepository -Name $outputRepository -SourceLocation $targetFolder -PublishLocation $targetFolder -InstallationPolicy Trusted | Out-Null
@@ -58,8 +58,11 @@ Task Import-CompiledModule {
 }
 
 Task Compile-TestPackage {
+    $testPackages = Join-Path $targetFolder "TestPackages"
+    mkdir $testPackages | Out-Null
+
     Exec {
-        choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $targetFolder
+        choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages
     }
 }
 
