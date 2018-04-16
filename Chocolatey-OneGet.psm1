@@ -182,15 +182,14 @@ function Find-Package {
         [string]
         $MaximumVersion
     )
-    
-    # if(-Not $Name){
-    #     $Name = ""
-    # }
 
-    $source = ""
-    if(-Not [String]::IsNullOrEmpty($Request.PackageSources)){
-        $source = [String]::Join(";", $Request.PackageSources)
+    $sourceNames = $Request.PackageSources
+
+    if($Request.PackageSources.Count -eq 0){
+        $sourceNames = Resolve-PackageSource | Select-Object Name
     }
+
+    $source = [String]::Join(";", $sourceNames)
     
     $choco = Get-Chocolatey
     $choco.Set({
@@ -200,7 +199,7 @@ function Find-Package {
         $config.Input = $Name
         $config.Sources = $source 
         
-        if(-Not $RequiredVersion){
+        if($Null -eq $RequiredVersion){
             #$config.Version = $RequiredVersion
         }
         

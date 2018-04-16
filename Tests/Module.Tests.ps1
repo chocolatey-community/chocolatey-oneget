@@ -144,9 +144,9 @@ Describe "Find package" {
         $found.Count | Should -Be 1
     }
 
-    It "finds all packages from all sources" -Skip {
+    It "finds package from all sources" -Skip {
         $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet
-        $found.Count | Should -Be 2
+        $found.Count | Should -Be 1
     }
 
     It "finds package by min. version" -Skip {
