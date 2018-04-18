@@ -2,7 +2,9 @@ $targetFolder = Join-Path $PSScriptRoot "Output"
 $moduleName = "Chocolatey-OneGet"
 $moduleFolder = Join-Path $targetFolder $moduleName
 $outputRepository = "$moduleName-OutputRepository"
-$testsFilter = "Find package" # all by default
+$installedModule = "$home\Documents\WindowsPowerShell\Modules\$moduleName"
+$moduleVersion = "0.10.9"
+$testsFilter = "*" # all by default
 
 Task Default -Depends `
     Build,`
@@ -26,15 +28,11 @@ Task Restore-Packages {
 Task Clean {
     Remove-Item $targetFolder -Force -Recurse -ErrorAction SilentlyContinue
     # This needs to kill the Visual Studio code powershell instance, otherwise the chocolatey.dll is locked.
-    $installedModule = "$home\Documents\WindowsPowerShell\Modules\$moduleName"
     Remove-Item $installedModule -Force -Recurse -ErrorAction SilentlyContinue
 }
 
 Task Compile {
-    Copy-Item -Path "..\$moduleName.psd1" -Destination "$moduleFolder\$moduleName.psd1" -Force
-    Copy-Item -Path "..\$moduleName.psm1" -Destination "$moduleFolder\$moduleName.psm1" -Force
-    Copy-Item -Path "..\packages\chocolatey.lib\lib\chocolatey.dll" -Destination "$moduleFolder\chocolatey.dll" -Force
-    Copy-Item -Path "..\packages\log4net\lib\net40-client\log4net.dll" -Destination "$moduleFolder\log4net.dll" -Force
+    Copy-ToTargetFolder $moduleFolder
 }
 
 Task Clean-OutputRepository {
@@ -60,7 +58,10 @@ Task Compile-TestPackage {
 
 Task Import-CompiledModule {
     if((Get-Module -Name $moduleName) -eq $null){
-        Install-Module $moduleName -Repository $outputRepository -Force -AllowClobber -Scope "CurrentUser"
+        # equivalent to: Install-Module $moduleName -Repository $outputRepository -Force -AllowClobber -Scope "CurrentUser"
+        $targetFolder = Join-Path $installedModule $moduleVersion
+        Copy-ToTargetFolder $targetFolder
+
         Import-Module $moduleName -Force -Scope Local
     }
 }
@@ -81,4 +82,17 @@ Task PublishTo-OutputRepository {
 Task Publish {
     # nugetApi key needs to be provided by chocolatey owners
     Publish-Module -Path $moduleFolder -NuGetApiKey ""
+}
+
+function Copy-ToTargetFolder(){
+    param([String]$targetFolder)
+
+    if(-Not (Test-Path $targetFolder)){
+        mkdir $targetFolder | Out-Null
+    }
+    
+    Copy-Item -Path "..\$moduleName.psd1" -Destination "$targetFolder\$moduleName.psd1" -Force
+    Copy-Item -Path "..\$moduleName.psm1" -Destination "$targetFolder\$moduleName.psm1" -Force
+    Copy-Item -Path "..\packages\chocolatey.lib\lib\chocolatey.dll" -Destination "$targetFolder\chocolatey.dll" -Force
+    Copy-Item -Path "..\packages\log4net\lib\net40-client\log4net.dll" -Destination "$targetFolder\log4net.dll" -Force
 }

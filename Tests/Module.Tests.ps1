@@ -10,6 +10,26 @@ function Get-ChocolateySource(){
     return choco source list | Where-Object { $_.Contains($expectedSourceName)}
 }
 
+function Clean-Sources (){
+    Invoke-Expression "choco source remove -n=$expectedSourceName"
+    Invoke-Expression "choco source remove -n=$expectedCertificateSource"
+    # because chocolatey.dll is unable to reload config file, we need to clean up manually
+    UnRegister-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -ErrorAction SilentlyContinue | Out-Null
+    Unregister-PackageSource -ProviderName $chocolateyOneGet -Name $expectedCertificateSource -ErrorAction SilentlyContinue | Out-Null
+}
+
+function Register-TestPackageSources(){
+    $userPassword = "UserPassword" | ConvertTo-SecureString -AsPlainText -Force
+    $credentials = new-object -typename System.Management.Automation.PSCredential -argumentlist "UserName", $userPassword
+
+    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $PSScriptRoot `
+        -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly `
+        -Credential $credentials
+
+    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedCertificateSource -Location $PSScriptRoot `
+        -Certificate "testCertificate" -CertificatePassword "testCertificatePassword"
+}
+
 Describe "Imported module" {
     $provider = Get-PackageProvider -Name $chocolateyOneGet
 
@@ -30,24 +50,14 @@ Describe "Imported module" {
 
 Describe "Add packages source" {
     BeforeAll { 
-        Invoke-Expression "choco source remove -n=$expectedSourceName"
-        Invoke-Expression "choco source remove -n=$expectedCertificateSource"
+        Clean-Sources 
     }
 
     AfterAll {
-        Invoke-Expression "choco source remove -n=$expectedSourceName"
-        Invoke-Expression "choco source remove -n=$expectedCertificateSource"
+        Clean-Sources 
     }
     
-    $userPassword = "UserPassword" | ConvertTo-SecureString -AsPlainText -Force
-    $credentials = new-object -typename System.Management.Automation.PSCredential -argumentlist "UserName", $userPassword
-
-    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $PSScriptRoot `
-                        -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly `
-                        -Credential $credentials
-
-    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedCertificateSource -Location $PSScriptRoot `
-                        -Certificate "testCertificate" -CertificatePassword "testCertificatePassword"
+    Register-TestPackageSources
 
     $registeredSource = Get-ChocolateySource
 
@@ -84,14 +94,13 @@ Describe "Add packages source" {
 }
 
 Describe "Get package sources" {
-    BeforeAll { 
-        Invoke-Expression "choco source add -n=$expectedSourceName -s=""$PSScriptRoot"""
-        Invoke-Expression "choco source add -n=$expectedCertificateSource -s=""$PSScriptRoot"""
+    BeforeAll {
+        Clean-Sources
+        Register-TestPackageSources
     }
 
     AfterAll { 
-        Invoke-Expression "choco source remove -n=$expectedSourceName"
-        Invoke-Expression "choco source remove -n=$expectedCertificateSource"
+        Clean-Sources
     }
 
     It "lists all registered sources" {
@@ -114,15 +123,16 @@ Describe "Get package sources" {
 
 Describe "Unregister package source" {
     BeforeAll { 
-        Invoke-Expression "choco source add -n=$expectedSourceName -s=""$PSScriptRoot"""
+        Clean-Sources
+        Register-TestPackageSources
     }
 
     AfterAll { 
-        Invoke-Expression "choco source remove -n=$expectedSourceName"
+        Clean-Sources
     }
 
     It "is removed" {
-        Unregister-PackageSource -ProviderName Chocolatey-OneGet -Name $expectedSourceName
+        Unregister-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName
         $registeredSource = Get-ChocolateySource
         $registeredSource | Should -Be $Null
     }
@@ -130,13 +140,14 @@ Describe "Unregister package source" {
 
 Describe "Find package" {
     BeforeAll { 
+        Clean-Sources
         $buildOutput = Join-Path $PSScriptRoot "..\Build\Output\TestPackages"
         $buildOutput = $(Resolve-Path $buildOutput).Path
-        Invoke-Expression "choco source add -n=""$expectedSourceName"" -s=""$buildOutput"""
+        Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $buildOutput
     }
 
     AfterAll { 
-        Invoke-Expression "choco source remove -n=$expectedSourceName"
+        Clean-Sources
     }
 
     It "finds package in Source" {
