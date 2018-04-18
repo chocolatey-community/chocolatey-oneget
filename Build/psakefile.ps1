@@ -2,7 +2,7 @@ $targetFolder = Join-Path $PSScriptRoot "Output"
 $moduleName = "Chocolatey-OneGet"
 $moduleFolder = Join-Path $targetFolder $moduleName
 $outputRepository = "$moduleName-OutputRepository"
-$testsFilter = "*" # all by default
+$testsFilter = "Find package" # all by default
 
 Task Default -Depends `
     Build,`
@@ -14,6 +14,7 @@ Task Build -Depends `
     Restore-Packages,`
     Register-OutputRepository, `
     Compile, `
+    PublishTo-OutputRepository, `
     Compile-TestPackage
 
 Task Restore-Packages {
@@ -34,8 +35,6 @@ Task Compile {
     Copy-Item -Path "..\$moduleName.psm1" -Destination "$moduleFolder\$moduleName.psm1" -Force
     Copy-Item -Path "..\packages\chocolatey.lib\lib\chocolatey.dll" -Destination "$moduleFolder\chocolatey.dll" -Force
     Copy-Item -Path "..\packages\log4net\lib\net40-client\log4net.dll" -Destination "$moduleFolder\log4net.dll" -Force
-
-    Publish-Module -Path $moduleFolder -Repository $outputRepository -Force
 }
 
 Task Clean-OutputRepository {
@@ -50,19 +49,19 @@ Task Register-OutputRepository {
     }
 }
 
-Task Import-CompiledModule {
-    if((Get-Module -Name $moduleName) -eq $null){
-        Install-Module $moduleName -Repository $outputRepository -Force -AllowClobber -Scope "CurrentUser"
-        Import-Module $moduleName -Force -Scope Local
-    }
-}
-
 Task Compile-TestPackage {
     $testPackages = Join-Path $targetFolder "TestPackages"
     mkdir $testPackages | Out-Null
 
     Exec {
         choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages
+    }
+}
+
+Task Import-CompiledModule {
+    if((Get-Module -Name $moduleName) -eq $null){
+        Install-Module $moduleName -Repository $outputRepository -Force -AllowClobber -Scope "CurrentUser"
+        Import-Module $moduleName -Force -Scope Local
     }
 }
 
@@ -75,7 +74,11 @@ Task Test -Depends Import-CompiledModule {
     }
 }
 
+Task PublishTo-OutputRepository {
+    Publish-Module -Path $moduleFolder -Repository $outputRepository -Force
+}
+
 Task Publish {
-    # nugetApi key needs to beprovided by chocolatey owners
+    # nugetApi key needs to be provided by chocolatey owners
     Publish-Module -Path $moduleFolder -NuGetApiKey ""
 }

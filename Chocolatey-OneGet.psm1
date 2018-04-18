@@ -42,14 +42,16 @@ function Get-DynamicOptions{
 }
 
 function Resolve-PackageSource {
-    $SourceName = $request.PackageSources
+    $SourceNames = $request.PackageSources
 
-    if(-not $SourceName) {
-        $SourceName = "*"
+    if($SourceNames.Count -eq 0) {
+        $SourceNames += "*"
     }
 
     $choco = Get-Chocolatey
-    $choco.Set({
+    # fluent API of Set method returns it self,
+    # without assignment it is written as output object and break Find-Package
+    $choco = $choco.Set({
         param($config)
 
         $config.CommandName = "source"
@@ -61,7 +63,7 @@ function Resolve-PackageSource {
     $gMethod = $method.MakeGenericMethod([chocolatey.infrastructure.app.configuration.ChocolateySource]) 
     $registered = $gMethod.Invoke($choco, $Null)
     
-    foreach($pattern in $SourceName){
+    foreach($pattern in $SourceNames){
         if($request.IsCanceled) { 
             return;
         }
@@ -107,7 +109,7 @@ function Add-PackageSource {
     $certificatePassword = ParseDynamicOption $optionCertificatePassword ""
 
     $choco = Get-Chocolatey
-    $choco.Set({
+    $choco = $choco.Set({
         param($config)
 
         $config.CommandName = "source"
@@ -156,7 +158,7 @@ function Remove-PackageSource {
     }
 
     $choco = Get-Chocolatey
-    $choco.Set({
+    $choco = $choco.Set({
         param($config)
 
         $config.CommandName = "source"
@@ -185,14 +187,16 @@ function Find-Package {
 
     $sourceNames = $Request.PackageSources
 
-    if($Request.PackageSources.Count -eq 0){
-        $sourceNames = Resolve-PackageSource | Select-Object Name
+    if($sourceNames.Count -eq 0){
+        Resolve-PackageSource | ForEach-Object{ 
+            $sourceNames += $_.Name
+        }
     }
 
     $source = [String]::Join(";", $sourceNames)
-    
+
     $choco = Get-Chocolatey
-    $choco.Set({
+    $choco = $choco.Set({
         param($config)
 
         $config.CommandName = "list"
