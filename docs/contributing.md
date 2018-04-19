@@ -3,7 +3,7 @@
 ## Prerequisities
 
 * Recommended development environnement is visual Studio Code with PowerShell extension
-* Run build/prepareEnvironment.ps1 script to install all tools used for provider development, it installs used tools
+* Run ```build/prepareEnvironment.ps1``` script to install all tools used for provider development, it installs used tools
 * Used tools:
   * Pester - powershell testing framework
   * PackageManagement - Required dependency, we develop its plugin
@@ -13,7 +13,7 @@
 ## Development
 
 * Build: Run ```build\build.ps1```
-* Outcome is stored in "Build\Output"
+* Outcome is stored in ```Build\Output```
 * Use "Invoke-Psake Publish" from build directory to publish into PsGet online repository
 
 ## Debugging
