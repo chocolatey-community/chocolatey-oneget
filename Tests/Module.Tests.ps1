@@ -161,7 +161,7 @@ Describe "Find package" {
     }
 
     It "finds package by tags" {
-        $found = PackageManagement\Find-Package -ProviderName $chocolateyOneGet -Tag @("TagC", "TagA") -Debug
+        $found = PackageManagement\Find-Package -ProviderName $chocolateyOneGet -Tag @("TagC", "TagA")
         $found.Count | Should -Be 1
     }
 
