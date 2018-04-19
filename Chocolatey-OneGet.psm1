@@ -4,6 +4,7 @@ $optionAllowSelfService = "AllowSelfService"
 $optionVisibleToAdminsOnly = "VisibleToAdminsOnly"
 $optionCertificate = "Certificate"
 $optionCertificatePassword = "CertificatePassword"
+$optionTags = "Tag"
 $script:wildcardOptions = [System.Management.Automation.WildcardOptions]::CultureInvariant -bor `
                           [System.Management.Automation.WildcardOptions]::IgnoreCase
 
@@ -37,6 +38,10 @@ function Get-DynamicOptions{
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionVisibleToAdminsOnly -ExpectedType switch -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionCertificate -ExpectedType string -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionCertificatePassword -ExpectedType string -IsRequired $false)
+        }
+
+        Package {
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionTags -ExpectedType StringArray -IsRequired $false)
         }
     }
 }
@@ -186,6 +191,7 @@ function Find-Package {
     )
 
     $sourceNames = $Request.PackageSources
+    $tags = ParseDynamicOption $optionTags @()
 
     if($sourceNames.Count -eq 0){
         Resolve-PackageSource | ForEach-Object{ 
@@ -217,9 +223,21 @@ function Find-Package {
     foreach($found in $packages){
         if($request.IsCanceled) { 
             return
-        } 
+        }
+        
+        # Choco has different usage fo the tag filtering option
+        $packageTags = $found.Package.Tags
+        $tagFound = $tags.Count -eq 0
 
-        $identity = New-SoftwareIdentity "fastPackageReference"  $found.Name $found.Version  "semver"  $source  $found.Description        
+        foreach($tag in $tags){
+            $tagFound = $tagFound -or $packageTags.Contains($tag)
+        }
+        
+        if(-Not $tagFound){
+            continue
+        }
+
+        $identity = New-SoftwareIdentity "fastPackageReference" $found.Name $found.Version "semver" $source $found.Description        
         Write-Output $identity
     } 
 }

@@ -6,6 +6,7 @@
     <title>TestPackage</title>
     <authors>TestPackage</authors>
     <description>TestPackage for Chocolatey oneget package provider</description>
+    <tags>TagA TagB</tags>
   </metadata>
   <files>
       <file src="tools\**" target="tools" />

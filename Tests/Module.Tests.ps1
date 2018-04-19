@@ -155,8 +155,13 @@ Describe "Find package" {
         $found.Count | Should -Be 1
     }
 
-    It "finds package from all sources"  {
+    It "finds package from all sources" {
         $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet
+        $found.Count | Should -Be 1
+    }
+
+    It "finds package by tags" {
+        $found = PackageManagement\Find-Package -ProviderName $chocolateyOneGet -Tag @("TagC", "TagA") -Debug
         $found.Count | Should -Be 1
     }
 
@@ -172,10 +177,9 @@ Describe "Find package" {
     
     }
 
-    It "finds package by tags" -Skip {
-    
+    It "finds prerelease versions" -Skip {
     }
 
-    It "finds prerelease version package" -Skip {
+    It "finds all package versions" -Skip {
     }
 }
