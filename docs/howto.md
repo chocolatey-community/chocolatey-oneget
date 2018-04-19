@@ -61,7 +61,7 @@ Register-PackageSource -ProviderName $chocolateyOneGet -Name $sourceName -Locati
 
 > **NOTE:** All additional parameters used in this provider follow the chocolatey command line options, so for more details about their values usage, refer directly to [chocolatey documentation](https://github.com/chocolatey/choco/wiki/CommandsReference).
 
-If your package source needs authenticate you can use credentials powershell object (as standard One-Get parameter) or crertificate via additional parameters. Both have the same behavior like chocolatey command line.
+If your package source needs authenticate you can use credentials powershell object (as standard One-Get parameter) or certificate via additional parameters. Both have the same behavior like chocolatey command line.
 
 ```powershell
 $credentials = Get-Credential
@@ -78,7 +78,7 @@ Register-PackageSource -ProviderName Chocolatey-OneGet -Name $sourceName -Locati
 
 ## 3. List registered package sources
 
-By default chocolatey installs default package source. When you install this provider only, no package source is added by default. Purpose for this is enterprice environment, where comapnies want to use their local package source only. Wildcards are supported in source names. When no filter is provided all sources are returned.
+By default chocolatey installs default package source. When you install this provider only, no package source is added by default. Purpose for this is enterprise environment, where companies want to use their local package source only. Wildcards are supported in source names. When no filter is provided all sources are returned.
 To see all already registered package sources
 
 ```powershell
@@ -92,4 +92,18 @@ To remove package source, you only need to know the source name. Package source 
 
 ```powershell
 Unregister-PackageSource -ProviderName Chocolatey-OneGet -Name $sourceName
+```
+
+## 5. Find package
+
+To find package to be installed you have multiple options. The main difference when comparing to chocolatey command is usage of tags. Se following examples
+
+```powershell
+$packageName = "git"
+# Find package by name or description in one source
+Find-Package -Name $packageName -ProviderName Chocolatey-OneGet -Source $sourceName
+# Find package by name or description in all sources
+Find-Package -Name $packageName -ProviderName Chocolatey-OneGet
+# Find all packages containing one of these tags
+Find-Package -ProviderName Chocolatey-OneGet -Tag @("TagC", "TagA")
 ```
