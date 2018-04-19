@@ -93,6 +93,7 @@ function Copy-ToTargetFolder(){
     
     Copy-Item -Path "..\$moduleName.psd1" -Destination "$targetFolder\$moduleName.psd1" -Force
     Copy-Item -Path "..\$moduleName.psm1" -Destination "$targetFolder\$moduleName.psm1" -Force
+    Copy-Item -Path "..\Chocolatey-Helpers.psm1" -Destination "$targetFolder\Chocolatey-Helpers.psm1" -Force
     Copy-Item -Path "..\packages\chocolatey.lib\lib\chocolatey.dll" -Destination "$targetFolder\chocolatey.dll" -Force
     Copy-Item -Path "..\packages\log4net\lib\net40-client\log4net.dll" -Destination "$targetFolder\log4net.dll" -Force
 }
