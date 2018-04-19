@@ -12,3 +12,7 @@ function IsChocolateyInstalled() {
 
     Test-Path -Path $script:chocolateyDir;
 }
+
+function Register-ChocoDefaultSource(){
+    Register-PackageSource -ProviderName chocolatey-oneget -Name choco -Location https://chocolatey.org/api/v2/
+}
