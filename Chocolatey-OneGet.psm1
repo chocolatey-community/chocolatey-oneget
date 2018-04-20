@@ -5,6 +5,7 @@ $optionVisibleToAdminsOnly = "VisibleToAdminsOnly"
 $optionCertificate = "Certificate"
 $optionCertificatePassword = "CertificatePassword"
 $optionTags = "Tag"
+$optionAllVersions = "AllVersions"
 $script:wildcardOptions = [System.Management.Automation.WildcardOptions]::CultureInvariant -bor `
                           [System.Management.Automation.WildcardOptions]::IgnoreCase
 
@@ -42,6 +43,7 @@ function Get-DynamicOptions{
 
         Package {
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionTags -ExpectedType StringArray -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionAllVersions -ExpectedType switch -IsRequired $false)
         }
     }
 }
@@ -192,6 +194,7 @@ function Find-Package {
 
     $sourceNames = $Request.PackageSources
     $tags = ParseDynamicOption $optionTags @()
+    $allVersions = ParseDynamicOption $optionAllVersions $false
 
     if($sourceNames.Count -eq 0){
         Resolve-PackageSource | ForEach-Object{ 
@@ -213,7 +216,7 @@ function Find-Package {
             #$config.Version = $RequiredVersion
         }
         
-        #$config.AllVersions = $True
+        $config.AllVersions = $allVersions
     })
         
     $method = $choco.GetType().GetMethod("List")

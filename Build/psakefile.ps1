@@ -49,10 +49,14 @@ Task Register-OutputRepository {
 
 Task Compile-TestPackage {
     $testPackages = Join-Path $targetFolder "TestPackages"
-    mkdir $testPackages | Out-Null
-
+ 
+    if(-Not (Test-Path $testPackages)){
+        mkdir $testPackages | Out-Null
+    }
+ 
     Exec {
-        choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages
+        choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages --version=1.0.1
+        choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages --version=1.0.2
     }
 }
 
