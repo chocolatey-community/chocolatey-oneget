@@ -100,10 +100,14 @@ To find package to be installed you have multiple options. The main difference w
 
 ```powershell
 $packageName = "git"
-# Find package by name or description in one source
+# Find latest version of package by name or description in one source
 Find-Package -Name $packageName -ProviderName Chocolatey-OneGet -Source $sourceName
 # Find package by name or description in all sources
 Find-Package -Name $packageName -ProviderName Chocolatey-OneGet
 # Find all packages containing one of these tags
 Find-Package -ProviderName Chocolatey-OneGet -Tag @("TagC", "TagA")
+# Find all versions of package
+Find-Package -Name $packageName -ProviderName Chocolatey-OneGet -AllVersions
+# Find latest version of package including prerelease versions
+Find-Package -Name $packageName -ProviderName Chocolatey-OneGet -PrereleaseVersions
 ```
