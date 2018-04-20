@@ -199,6 +199,7 @@ function Find-Package {
     $tags = ParseDynamicOption $optionTags @()
     $allVersions = ParseDynamicOption $optionAllVersions $false
     $preRelease = ParseDynamicOption $optionPreRelease $false
+    $queryVersions = Parse-Version $RequiredVersion $MinimumVersion $MaximumVersion
 
     if($sourceNames.Count -eq 0){
         Resolve-PackageSource | ForEach-Object{ 
@@ -216,8 +217,8 @@ function Find-Package {
         $config.Input = $Name
         $config.Sources = $source 
         
-        if($Null -eq $RequiredVersion){
-            #$config.Version = $RequiredVersion
+        if($queryVersions.min -eq $queryVersions.max){
+            $config.Version = $RequiredVersion
         }
         
         $config.AllVersions = $allVersions
@@ -234,7 +235,8 @@ function Find-Package {
         }
         
         # Choco has different usage fo the tag filtering option
-        $packageTags = $found.Package.Tags
+        $package = $found.Package
+        $packageTags = $package.Tags
         $tagFound = $tags.Count -eq 0
 
         foreach($tag in $tags){
@@ -242,6 +244,12 @@ function Find-Package {
         }
         
         if(-Not $tagFound){
+            continue
+        }
+
+        [NuGet.SemanticVersion]$actual = $null;
+        if ([NuGet.SemanticVersion]::TryParse($package.Version,[ref] $actual) `
+             -and ($actual -lt $queryVersions.min -or $actual > $queryVersions.max)){
             continue
         }
 
@@ -356,5 +364,32 @@ function ThrowError(){
     $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "Chocolatey", $errorCategory, $Null    
     $PSCmdlet.ThrowTerminatingError($errorRecord)
 }
+
+function Parse-Version(){
+    param([string]$requiredVersion,
+          [string]$minimumVersion,
+          [string]$maximumVersion
+    )
+
+    [NuGet.SemanticVersion]$min = $null
+    [NuGet.SemanticVersion]$max = $null
+    [NuGet.SemanticVersion]$actual = $nullon
+
+    if (-Not [string]::IsNullOrEmpty($requiredVersion) -and [NuGet.SemanticVersion]::TryParse($requiredVersion, [ref] $actual)){
+        $min = $max = $actual;
+    } else {
+        if ([string]::IsNullOrEmpty($minimumVersion) -or -not [NuGet.SemanticVersion]::TryParse($minimumVersion, [ref] $min)){
+            $version = New-Object Version
+            $min = New-Object "NuGet.SemanticVersion" $version
+        }
+
+        if ([string]::IsNullOrEmpty($maximumVersion) -or -not [NuGet.SemanticVersion]::TryParse($maximumVersion, [ref] $max)){
+            $max = New-Object "NuGet.SemanticVersion" @([int32]::MaxValue, [int32]::MaxValue, [int32]::MaxValue, [int32]::MaxValue)
+        }
+    }
+    
+    return @{ "min" = $min; "max" = $max }
+}
+
 
 #endregion
