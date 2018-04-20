@@ -170,6 +170,11 @@ Describe "Find package" {
         $found.Count | Should -Be 2
     }
 
+    It "finds prerelease versions" {
+        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -PrereleaseVersions
+        $found.Version | Should -Be "1.1.0-beta1"
+    }
+
     It "finds package by min. version" -Skip {
     
     }
@@ -180,9 +185,5 @@ Describe "Find package" {
 
     It "finds package by required version" -Skip {
     
-    }
-
-    It "finds prerelease versions" -Skip {
-        
     }
 }
