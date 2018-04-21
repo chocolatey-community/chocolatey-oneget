@@ -37,17 +37,21 @@ Describe "Find package" {
         $found.Version | Should -Be "1.1.0-beta1"
     }
 
+    $expectedVersion = "1.0.2"
+
     It "finds package by required version" {
-        $expectedVersion = "1.0.1"
         $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -RequiredVersion $expectedVersion
         $found.Version | Should -Be $expectedVersion
     }
 
-    It "finds package by min. version" -Skip {
-    
+    It "finds package by min. version" {
+        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -AllVersions -MinimumVersion $expectedVersion
+        $resolvedVersion = $found[$found.length - 1].Version
+        $resolvedVersion | Should -Be $expectedVersion
     }
 
-    It "finds package by max. version" -Skip {
-    
+    It "finds package by max. version" {      
+        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -MaximumVersion $expectedVersion
+        $found.Version | Should -Be $expectedVersion
     }
 }
