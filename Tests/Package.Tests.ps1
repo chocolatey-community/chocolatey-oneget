@@ -29,7 +29,7 @@ Describe "Find package" {
 
     It "finds all package versions" {
         $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -AllVersions
-        $found.Count | Should -Be 2
+        $found.Count | Should -Be 3
     }
 
     It "finds prerelease versions" {
