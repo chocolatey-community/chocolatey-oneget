@@ -200,6 +200,8 @@ function Find-Package {
     $allVersions = ParseDynamicOption $optionAllVersions $false
     $preRelease = ParseDynamicOption $optionPreRelease $false
     $queryVersions = Parse-Version $RequiredVersion $MinimumVersion $MaximumVersion
+    $allVersions = ($allVersions -or $queryVersions.defined)
+    $byIdOnly = -not [string]::IsNullOrEmpty($Name) -or $queryVersions.defined
 
     if($sourceNames.Count -eq 0){
         Resolve-PackageSource | ForEach-Object{ 
@@ -216,7 +218,8 @@ function Find-Package {
         $config.CommandName = "list"
         $config.Input = $Name
         $config.Sources = $source 
-        
+        $config.ListCommand.ByIdOnly = $byIdOnly
+
         if($queryVersions.min -eq $queryVersions.max){
             $config.Version = $RequiredVersion
         }
@@ -249,7 +252,7 @@ function Find-Package {
 
         [NuGet.SemanticVersion]$actual = $null;
         if ([NuGet.SemanticVersion]::TryParse($package.Version,[ref] $actual) `
-             -and ($actual -lt $queryVersions.min -or $actual > $queryVersions.max)){
+             -and ($actual -lt $queryVersions.min -or $actual -gt $queryVersions.max)){
             continue
         }
 
@@ -374,21 +377,30 @@ function Parse-Version(){
     [NuGet.SemanticVersion]$min = $null
     [NuGet.SemanticVersion]$max = $null
     [NuGet.SemanticVersion]$actual = $nullon
+    $defined = $false
 
     if (-Not [string]::IsNullOrEmpty($requiredVersion) -and [NuGet.SemanticVersion]::TryParse($requiredVersion, [ref] $actual)){
-        $min = $max = $actual;
+        $min = $max = $actual
+        $defined = $true
     } else {
         if ([string]::IsNullOrEmpty($minimumVersion) -or -not [NuGet.SemanticVersion]::TryParse($minimumVersion, [ref] $min)){
             $version = New-Object Version
             $min = New-Object "NuGet.SemanticVersion" $version
+        } else {
+            $defined = $true
         }
 
         if ([string]::IsNullOrEmpty($maximumVersion) -or -not [NuGet.SemanticVersion]::TryParse($maximumVersion, [ref] $max)){
             $max = New-Object "NuGet.SemanticVersion" @([int32]::MaxValue, [int32]::MaxValue, [int32]::MaxValue, [int32]::MaxValue)
+        } else {
+            $defined = $true
         }
     }
     
-    return @{ "min" = $min; "max" = $max }
+    return @{ "min" = $min
+              "max" = $max
+              "defined" = $defined
+    }
 }
 
 

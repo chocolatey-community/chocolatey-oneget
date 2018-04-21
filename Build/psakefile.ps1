@@ -57,6 +57,7 @@ Task Compile-TestPackage {
     Exec {
         choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages --version=1.0.1
         choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages --version=1.0.2
+        choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages --version=1.0.3
         choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages --version=1.1.0-beta1
     }
 }
