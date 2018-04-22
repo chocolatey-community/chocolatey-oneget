@@ -32,6 +32,7 @@ This part contains plain PowerShell implementation of the provider, development 
 Not implemented
 * Trusted package sources
 * Disable package source
+* Custom credentials in Find-Package
 
 ## C# implementation - OBSOLETE
 

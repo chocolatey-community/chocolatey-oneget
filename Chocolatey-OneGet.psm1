@@ -256,7 +256,8 @@ function Find-Package {
             continue
         }
 
-        $identity = New-SoftwareIdentity "fastPackageReference" $found.Name $found.Version "semver" $source $found.Description        
+        $packageReference = Build-FastPackageReference $found
+        $identity = New-SoftwareIdentity $packageReference $found.Name $found.Version "semver" $source $found.Description        
         Write-Output $identity
     } 
 }
@@ -401,6 +402,13 @@ function Parse-Version(){
               "max" = $max
               "defined" = $defined
     }
+}
+
+function Build-FastPackageReference($package){
+    $name =$package.Name
+    $version = $package.Version
+    $source = $package.Source
+    return  "$name|#|$version|#|$source" 
 }
 
 
