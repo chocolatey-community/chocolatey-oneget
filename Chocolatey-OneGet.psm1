@@ -81,9 +81,19 @@ function Resolve-PackageSource {
         $wildcardPattern = New-Object System.Management.Automation.WildcardPattern $pattern, $script:wildcardOptions
         $filtered = $registered | Where-Object { $wildcardPattern.IsMatch($_.Id) -or $wildcardPattern.IsMatch($_.Value) }
 
-        ForEach($source in $filtered){
+        forEach($source in $filtered){
             $packageSource = New-PackageSource -Name $source.Id -Location $source.Value -Trusted $False -Registered $True
             Write-Output -InputObject $packageSource
+        }
+
+        if($iltered.Count -eq 0) {
+            # if the path is valid isnt really not our responsibility, mainly for Url
+            $parsedUri = $null
+
+            if([System.Uri]::TryCreate($pattern, [System.UriKind]::Absolute, [ref]$parsedUri)){
+                $packageSource = New-PackageSource -Name $pattern -Location $pattern -Trusted $False -Registered $False
+                Write-Output -InputObject $packageSource
+            }
         }
     }
 }

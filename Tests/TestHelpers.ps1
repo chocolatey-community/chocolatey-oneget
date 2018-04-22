@@ -3,6 +3,9 @@ $expectedSourceName = "Chocolatey-TestScriptRoot"
 $expectedCertificateSource = "Chocolatey-CertificateTestScriptRoot"
 $testPackageName = "TestPackage"
 
+$testPackagesPath = Join-Path $PSScriptRoot "..\Build\Output\TestPackages"
+$testPackagesPath = $(Resolve-Path $testPackagesPath).Path
+
 # If import failed, chocolatey.dll is locked and is necessary to reload powershell
 # Import-PackageProvider $chocolateyOneGet -force
 
@@ -22,10 +25,10 @@ function Register-TestPackageSources(){
     $userPassword = "UserPassword" | ConvertTo-SecureString -AsPlainText -Force
     $credentials = new-object -typename System.Management.Automation.PSCredential -argumentlist "UserName", $userPassword
 
-    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $PSScriptRoot `
+    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $testPackagesPath `
         -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly `
         -Credential $credentials
 
-    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedCertificateSource -Location $PSScriptRoot `
+    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedCertificateSource -Location $testPackagesPath `
         -Certificate "testCertificate" -CertificatePassword "testCertificatePassword"
 }

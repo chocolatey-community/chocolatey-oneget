@@ -68,8 +68,18 @@ Describe "Get package sources" {
     }
 
     It "lists sources by location" {
-        $byPathSources = Get-PackageSource -ProviderName $chocolateyOneGet -Location $PSScriptRoot
+        $byPathSources = Get-PackageSource -ProviderName $chocolateyOneGet -Location $testPackagesPath
         $byPathSources.Count | Should -Be 2
+    }
+
+    $byPathSource = Get-PackageSource -ProviderName $chocolateyOneGet -Location $PSScriptRoot
+
+    It "not registered location returns source by its location" {      
+        $byPathSource.Location | Should -Be $PSScriptRoot
+    }
+
+    It "not registered location returns not registered source" {      
+        $byPathSource.IsRegistered | Should -Be $false
     }
 }
 

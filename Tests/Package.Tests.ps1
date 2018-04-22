@@ -3,9 +3,7 @@
 Describe "Find package" {
     BeforeAll { 
         Clean-Sources
-        $testPackages = Join-Path $PSScriptRoot "..\Build\Output\TestPackages"
-        $testPackages = $(Resolve-Path $testPackages).Path
-        Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedSourceName -Location $testPackages
+        Register-TestPackageSources
     }
 
     AfterAll { 
@@ -14,7 +12,7 @@ Describe "Find package" {
 
     It "finds package in Source" {
         $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Source $expectedSourceName
-        $packagesUri = New-Object "System.Uri" $testPackages
+        $packagesUri = New-Object "System.Uri" $testPackagesPath
         $found.FastPackageReference | Should -Be "TestPackage|#|1.0.3|#|$packagesUri"
     }
 
@@ -54,9 +52,5 @@ Describe "Find package" {
     It "finds package by max. version" {      
         $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -MaximumVersion $expectedVersion
         $found.Version | Should -Be $expectedVersion
-    }
-
-    It "uses not registered source by uri" -Skip {      
-        
     }
 }
