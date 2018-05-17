@@ -303,7 +303,30 @@ function Install-Package {
        [string]
        $FastPackageReference
    )
-   #TODO
+
+   $packageReference = Parse-FastPackageReference $FastPackageReference
+   # No need to check for null, since we build it from valid values
+   $source = Resolve-PackageSource $packageReference.Source   
+
+
+   #TODO needs to solve the source as trusted, otherwise automatic test is not able to execute
+   # use additional chocolatey parameters
+   # provide additional installer parameters - extend the testpackage
+
+   $choco = Get-Chocolatey
+   $choco = $choco.Set({
+       param($config)
+
+       $config.CommandName = "install"
+       $config.PackageNames = $packageReference.Name;
+       $config.Version = $packageReference.Version;
+       $config.Sources = $packageReference.Source;
+   });
+
+   $choco.Run()
+   
+   # run installer, report install error
+   # return package info
  }
 
 function UnInstall-Package {
@@ -421,5 +444,22 @@ function Build-FastPackageReference($package){
     return  "$name|#|$version|#|$source" 
 }
 
+function Parse-FastPackageReference($fastPackageReference){
+    $pattern = "(?<Name>.*)\|#\|(?<Version>.*)\|#\|(?<Source>.*)"
+    $regEx = [regex]::new($pattern, $wildcardOptions)
+    $parsed = $regEx.Match($fastPackageReference)
+    
+    if($parsed.Success){
+        $result = @{
+            Name = $parsed.Groups["Name"].Value
+            Version = $parsed.Groups["Version"].Value
+            Source = $parsed.Groups["Source"].Value
+        }
+
+        return $result
+    }
+
+    return $null
+}
 
 #endregion

@@ -54,3 +54,19 @@ Describe "Find package" {
         $found.Version | Should -Be $expectedVersion
     }
 }
+
+Describe "Install package"  {
+    BeforeAll { 
+        Clean-Sources
+        Register-TestPackageSources
+    }
+
+    AfterAll { 
+        Clean-Sources
+    }
+
+    It "isntalls required version" -Skip {      
+        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet #-Version $expectedVersion
+        $installed | Should -Not -Be $null
+    }
+}
