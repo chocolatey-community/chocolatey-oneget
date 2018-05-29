@@ -87,7 +87,7 @@ function Resolve-PackageSource {
         }
 
         if($iltered.Count -eq 0) {
-            # if the path is valid isnt really not our responsibility, mainly for Url
+            # if the path is valid isnt really not our responsibility, only for Url values
             $parsedUri = $null
 
             if([System.Uri]::TryCreate($pattern, [System.UriKind]::Absolute, [ref]$parsedUri)){
@@ -308,7 +308,6 @@ function Install-Package {
    # No need to check for null, since we build it from valid values
    $source = Resolve-PackageSource $packageReference.Source   
 
-
    #TODO needs to solve the source as trusted, otherwise automatic test is not able to execute
    # use additional chocolatey parameters
    # provide additional installer parameters - extend the testpackage
@@ -441,6 +440,13 @@ function Build-FastPackageReference($package){
     $name =$package.Name
     $version = $package.Version
     $source = $package.Source
+    $parsedUri = $null
+
+    # TODO check the same for UNC path
+    if([System.Uri]::TryCreate($package.Source, [System.UriKind]::Absolute, [ref]$parsedUri) -and $parsedUri.IsFile){
+        $source = $parsedUri.AbsolutePath
+    }
+    
     return  "$name|#|$version|#|$source" 
 }
 

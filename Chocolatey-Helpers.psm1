@@ -14,5 +14,6 @@ function IsChocolateyInstalled() {
 }
 
 function Register-ChocoDefaultSource(){
+    # choco source add -n=choco -s=https://chocolatey.org/api/v2/
     Register-PackageSource -ProviderName chocolatey-oneget -Name choco -Location https://chocolatey.org/api/v2/
 }

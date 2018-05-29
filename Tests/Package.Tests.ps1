@@ -65,8 +65,23 @@ Describe "Install package"  {
         Clean-Sources
     }
 
-    It "isntalls required version" -Skip {      
-        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet #-Version $expectedVersion
-        $installed | Should -Not -Be $null
+    It "installs correct version" {      
+        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Verbose -Force
+        #$installed | Should -Not -Be $null
+        $installedInChoco = choco list -l | findstr TestPackage
+        $installedInChoco | Should -Be "TestPackage 1.0.3"
     }
+
+    # It "installs correct version" -Skip {      
+    #     $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet `
+    #         -Version $expectedVersion
+    #     $installed | Should -Not -Be $null
+    # }
+
+    # It "installs from correct source" -Skip {      
+    #     $sourceName = ""
+    #     $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet `
+    #         -Source $sourceName 
+    #     $installed | Should -Not -Be $null
+    # }
 }
