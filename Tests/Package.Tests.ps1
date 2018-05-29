@@ -12,7 +12,7 @@ Describe "Find package" {
 
     It "finds package in Source" {
         $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Source $expectedSourceName
-        $packagesUri = New-Object "System.Uri" $testPackagesPath
+        $packagesUri = (New-Object "System.Uri" $testPackagesPath).AbsolutePath
         $found.FastPackageReference | Should -Be "TestPackage|#|1.0.3|#|$packagesUri"
     }
 
@@ -66,7 +66,7 @@ Describe "Install package"  {
     }
 
     It "installs correct version" {      
-        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Verbose -Force
+        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
         #$installed | Should -Not -Be $null
         $installedInChoco = choco list -l | findstr TestPackage
         $installedInChoco | Should -Be "TestPackage 1.0.3"
