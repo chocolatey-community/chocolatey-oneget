@@ -59,10 +59,12 @@ Describe "Install package"  {
     BeforeAll { 
         Clean-Sources
         Register-TestPackageSources
+        Uninstall-TestPackage
     }
 
     AfterAll { 
         Clean-Sources
+        Uninstall-TestPackage
     }
 
     It "installs correct version" {      

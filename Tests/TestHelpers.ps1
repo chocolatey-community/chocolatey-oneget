@@ -32,3 +32,8 @@ function Register-TestPackageSources(){
     Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedCertificateSource -Location $testPackagesPath `
         -Certificate "testCertificate" -CertificatePassword "testCertificatePassword"
 }
+
+function Uninstall-TestPackage(){
+    # requires atleast one package source
+    Invoke-Expression "choco uninstall $testPackageName -y"
+}
