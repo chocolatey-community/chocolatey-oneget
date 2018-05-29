@@ -324,8 +324,9 @@ function Install-Package {
 
    $choco.Run()
    
-   # run installer, report install error
-   # return package info
+   $identity = New-SoftwareIdentity $FastPackageReference $packageReference.Name `
+        $packageReference.Version "semver" $packageReference.source        
+   Write-Output $identity
  }
 
 function UnInstall-Package {

@@ -67,11 +67,15 @@ Describe "Install package"  {
         Uninstall-TestPackage
     }
 
-    It "installs correct version" {      
-        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
-        #$installed | Should -Not -Be $null
+    $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
+
+    It "installs latest version" {      
         $installedInChoco = choco list -l | findstr TestPackage
         $installedInChoco | Should -Be "TestPackage 1.0.3"
+    }
+
+    It "reports installed package" {      
+        $installed | Should -Not -Be $null
     }
 
     # It "installs correct version" -Skip {      
