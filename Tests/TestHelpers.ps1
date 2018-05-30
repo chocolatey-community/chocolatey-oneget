@@ -37,3 +37,7 @@ function Uninstall-TestPackage(){
     # requires atleast one package source
     Invoke-Expression "choco uninstall $testPackageName -y"
 }
+
+function Find-InstalledTestPackage() {
+    return choco list -l | findstr $testPackageName
+}

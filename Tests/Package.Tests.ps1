@@ -1,5 +1,7 @@
 . $PSScriptRoot\TestHelpers.ps1
 
+$previousVersion = "1.0.2"
+
 Describe "Find package" {
     BeforeAll { 
         Clean-Sources
@@ -36,22 +38,20 @@ Describe "Find package" {
         $found.Version | Should -Be "1.1.0-beta1"
     }
 
-    $expectedVersion = "1.0.2"
-
     It "finds package by required version" {
-        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -RequiredVersion $expectedVersion
-        $found.Version | Should -Be $expectedVersion
+        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -RequiredVersion $previousVersion
+        $found.Version | Should -Be $previousVersion
     }
 
     It "finds package by min. version" {
-        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -AllVersions -MinimumVersion $expectedVersion
+        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -AllVersions -MinimumVersion $previousVersion
         $resolvedVersion = $found[$found.length - 1].Version
-        $resolvedVersion | Should -Be $expectedVersion
+        $resolvedVersion | Should -Be $previousVersion
     }
 
     It "finds package by max. version" {      
-        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -MaximumVersion $expectedVersion
-        $found.Version | Should -Be $expectedVersion
+        $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -MaximumVersion $previousVersion
+        $found.Version | Should -Be $previousVersion
     }
 }
 
@@ -59,6 +59,13 @@ Describe "Install package"  {
     BeforeAll { 
         Clean-Sources
         Register-TestPackageSources
+    }
+
+    BeforeEach {
+        Uninstall-TestPackage
+    }
+
+    AfterEach {
         Uninstall-TestPackage
     }
 
@@ -68,9 +75,9 @@ Describe "Install package"  {
     }
 
     $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
+    $installedInChoco = Find-InstalledTestPackage 
 
     It "installs latest version" {      
-        $installedInChoco = choco list -l | findstr TestPackage
         $installedInChoco | Should -Be "TestPackage 1.0.3"
     }
 
@@ -78,11 +85,11 @@ Describe "Install package"  {
         $installed | Should -Not -Be $null
     }
 
-    # It "installs correct version" -Skip {      
-    #     $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet `
-    #         -Version $expectedVersion
-    #     $installed | Should -Not -Be $null
-    # }
+    It "installs correct version" {      
+        Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
+            -RequiredVersion $previousVersion
+        Find-InstalledTestPackage | Should -Be "TestPackage $previousVersion"
+    }
 
     # It "installs from correct source" -Skip {      
     #     $sourceName = ""
