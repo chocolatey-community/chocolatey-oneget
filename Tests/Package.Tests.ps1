@@ -74,7 +74,7 @@ Describe "Install package"  {
         Uninstall-TestPackage
     }
 
-    $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
+    $latest = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
     $installedInChoco = Find-InstalledTestPackage 
 
     It "installs latest version" {      
@@ -82,19 +82,36 @@ Describe "Install package"  {
     }
 
     It "reports installed package" {      
-        $installed | Should -Not -Be $null
+        $latest | Should -Not -Be $null
     }
 
-    It "installs correct version" {      
+    It "installs correct version" -Skip {      
         Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -RequiredVersion $previousVersion
         Find-InstalledTestPackage | Should -Be "TestPackage $previousVersion"
     }
 
-    # It "installs from correct source" -Skip {      
-    #     $sourceName = ""
-    #     $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet `
-    #         -Source $sourceName 
-    #     $installed | Should -Not -Be $null
-    # }
+    It "installs from correct source" {      
+        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
+            -Source $expectedSourceName 
+        $installed | Should -Not -Be $null
+    }
+
+    It "installs prerelease version" -Skip {
+        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
+            -PrereleaseVersions 
+        $installed | Should -Not -Be $null
+    }
+
+    It "installs multiple versions side by side" -Skip {
+        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
+            -AllowMultipleVersions 
+        $installed | Should -Not -Be $null
+    }
+
+    It "uses package custom arguments" -Skip {
+        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
+            -PackageParameters "--custom" 
+        $installed | Should -Not -Be $null
+    }
 }

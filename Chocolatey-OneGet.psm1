@@ -7,6 +7,9 @@ $optionCertificatePassword = "CertificatePassword"
 $optionTags = "Tag"
 $optionAllVersions = "AllVersions"
 $optionPreRelease = "PrereleaseVersions"
+$optionAllowMultiple = "AllowMultipleVersions"
+$optionForceDependencies = "ForceDependencies"
+$optionPackageParameters = "PackageParameters"
 
 $script:wildcardOptions = [System.Management.Automation.WildcardOptions]::CultureInvariant -bor `
                           [System.Management.Automation.WildcardOptions]::IgnoreCase
@@ -47,6 +50,14 @@ function Get-DynamicOptions{
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionTags -ExpectedType StringArray -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionAllVersions -ExpectedType switch -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPreRelease -ExpectedType switch -IsRequired $false)
+        }
+
+        Install {
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionAllowMultiple -ExpectedType switch -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionForceDependencies -ExpectedType switch -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPreRelease -ExpectedType switch -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPreRelease -ExpectedType switch -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPackageParameters -ExpectedType string -IsRequired $false)
         }
     }
 }
