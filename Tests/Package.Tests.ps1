@@ -1,6 +1,8 @@
 . $PSScriptRoot\TestHelpers.ps1
 
 $previousVersion = "1.0.2"
+$latestVersion = "1.0.3"
+$prereleaseVersion = "1.1.0-beta1"
 
 Describe "Find package" {
     BeforeAll { 
@@ -35,7 +37,7 @@ Describe "Find package" {
 
     It "finds prerelease versions" {
         $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -PrereleaseVersions
-        $found.Version | Should -Be "1.1.0-beta1"
+        $found.Version | Should -Be $prereleaseVersion
     }
 
     It "finds package by required version" {
@@ -78,14 +80,14 @@ Describe "Install package"  {
     $installedInChoco = Find-InstalledTestPackage 
 
     It "installs latest version" {      
-        $installedInChoco | Should -Be "TestPackage 1.0.3"
+        $installedInChoco | Should -Be "TestPackage $latestVersion"
     }
 
     It "reports installed package" {      
-        $latest | Should -Not -Be $null
+        $latest.Version | Should -Be $latestVersion
     }
 
-    It "installs correct version" -Skip {      
+    It "installs correct version" {      
         Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -RequiredVersion $previousVersion
         Find-InstalledTestPackage | Should -Be "TestPackage $previousVersion"
@@ -94,19 +96,22 @@ Describe "Install package"  {
     It "installs from correct source" {      
         $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -Source $expectedSourceName 
-        $installed | Should -Not -Be $null
+        $installed.Source -replace '/',"\" | Should -Be $testPackagesPath
     }
 
-    It "installs prerelease version" -Skip {
+    It "installs prerelease version" {
         $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -PrereleaseVersions 
-        $installed | Should -Not -Be $null
+        $installed.Version | Should -Be $prereleaseVersion
     }
 
-    It "installs multiple versions side by side" -Skip {
-        $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
-            -AllowMultipleVersions 
-        $installed | Should -Not -Be $null
+    It "installs multiple versions side by side"  {
+        Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
+            -RequiredVersion $previousVersion -AllowMultipleVersions
+        Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
+            -AllowMultipleVersions
+        $installed = Find-InstalledTestPackage | Sort-Object
+        $installed | Should -Be @("TestPackage $previousVersion", "TestPackage $latestVersion")
     }
 
     It "uses package custom arguments" -Skip {

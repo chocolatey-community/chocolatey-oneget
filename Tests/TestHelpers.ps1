@@ -40,5 +40,5 @@ function Uninstall-TestPackage(){
 }
 
 function Find-InstalledTestPackage() {
-    return choco list -l | findstr $testPackageName
+    return choco list -localonly --allversions | findstr $testPackageName
 }

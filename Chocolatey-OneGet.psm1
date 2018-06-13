@@ -56,7 +56,6 @@ function Get-DynamicOptions{
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionAllowMultiple -ExpectedType switch -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionForceDependencies -ExpectedType switch -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPreRelease -ExpectedType switch -IsRequired $false)
-            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPreRelease -ExpectedType switch -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPackageParameters -ExpectedType string -IsRequired $false)
         }
     }
@@ -317,7 +316,8 @@ function Install-Package {
 
    $packageReference = Parse-FastPackageReference $FastPackageReference
    # No need to check for null, since we build it from valid values
-   $source = Resolve-PackageSource $packageReference.Source   
+   $source = Resolve-PackageSource $packageReference.Source  
+   $multipleVersions = ParseDynamicOption $optionAllowMultiple $false
 
    #TODO needs to solve the source as trusted, otherwise automatic test is not able to execute
    # use additional chocolatey parameters
@@ -328,9 +328,11 @@ function Install-Package {
        param($config)
 
        $config.CommandName = "install"
-       $config.PackageNames = $packageReference.Name;
-       $config.Version = $packageReference.Version;
-       $config.Sources = $packageReference.Source;
+       $config.PackageNames = $packageReference.Name
+       $config.Version = $packageReference.Version
+       $config.Sources = $packageReference.Source
+       $config.PromptForConfirmation = $False
+       $config.AllowMultipleVersions = $multipleVersions
    });
 
    $choco.Run()
