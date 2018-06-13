@@ -5,6 +5,7 @@ $testPackageName = "TestPackage"
 
 $testPackagesPath = Join-Path $PSScriptRoot "..\Build\Output\TestPackages"
 $testPackagesPath = $(Resolve-Path $testPackagesPath).Path
+$testPackagesPathWrong = "$testPackagesPath-Wrong"
 
 # If import failed, chocolatey.dll is locked and is necessary to reload powershell
 # Import-PackageProvider $chocolateyOneGet -force
@@ -29,7 +30,7 @@ function Register-TestPackageSources(){
         -Priority 10 -BypassProxy -AllowSelfService -VisibleToAdminsOnly `
         -Credential $credentials
 
-    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedCertificateSource -Location $testPackagesPath `
+    Register-PackageSource -ProviderName $chocolateyOneGet -Name $expectedCertificateSource -Location $testPackagesPathWrong `
         -Certificate "testCertificate" -CertificatePassword "testCertificatePassword"
 }
 

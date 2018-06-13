@@ -62,14 +62,20 @@ Describe "Get package sources" {
     }
 
     It "lists only sources by wildcard" {
-        $filteredSources = Get-PackageSource -ProviderName $chocolateyOneGet $expectedCertificateSource*
+        $filteredSources = Get-PackageSource -ProviderName $chocolateyOneGet "*Certificate*"
         $resolved = $filteredSources | Where-Object { $_.Name -eq $expectedCertificateSource }
-        $resolved.Count | Should -Be 1 
+        $resolved.Name | Should -Be $expectedCertificateSource 
     }
 
-    It "lists sources by location" {
-        $byPathSources = Get-PackageSource -ProviderName $chocolateyOneGet -Location $testPackagesPath
-        $byPathSources.Count | Should -Be 2
+    It "lists only sources by name parameter" {
+        $filteredSources = Get-PackageSource -ProviderName $chocolateyOneGet -Name "*Certificate*"
+        $resolved = $filteredSources | Where-Object { $_.Name -eq $expectedCertificateSource }
+        $resolved.Name | Should -Be $expectedCertificateSource 
+    }
+
+    It "lists sources by exact location value" {
+        $byPathSource = Get-PackageSource -ProviderName $chocolateyOneGet -Location $testPackagesPathWrong
+        $byPathSource.Name | Should -Be $expectedCertificateSource
     }
 
     $byPathSource = Get-PackageSource -ProviderName $chocolateyOneGet -Location $PSScriptRoot
