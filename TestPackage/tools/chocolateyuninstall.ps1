@@ -1,1 +1,2 @@
-﻿# This is empty, since we really install nothing
+﻿$installLog = "$env:ChocolateyInstall\lib\TestPackage\UsedParams.txt"
+Remove-Item $installLog
