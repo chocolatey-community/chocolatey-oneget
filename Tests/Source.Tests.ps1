@@ -1,14 +1,14 @@
 . $PSScriptRoot\TestHelpers.ps1
 
 Describe "Add packages source" {
-    BeforeAll { 
-        Clean-Sources 
+    BeforeAll {
+        Clean-Sources
     }
 
     AfterAll {
-        Clean-Sources 
+        Clean-Sources
     }
-    
+
     Register-TestPackageSources
 
     $registeredSource = Get-ChocolateySource
@@ -51,7 +51,7 @@ Describe "Get package sources" {
         Register-TestPackageSources
     }
 
-    AfterAll { 
+    AfterAll {
         Clean-Sources
     }
 
@@ -64,13 +64,13 @@ Describe "Get package sources" {
     It "lists only sources by wildcard" {
         $filteredSources = Get-PackageSource -ProviderName $chocolateyOneGet "*Certificate*"
         $resolved = $filteredSources | Where-Object { $_.Name -eq $expectedCertificateSource }
-        $resolved.Name | Should -Be $expectedCertificateSource 
+        $resolved.Name | Should -Be $expectedCertificateSource
     }
 
     It "lists only sources by name parameter" {
         $filteredSources = Get-PackageSource -ProviderName $chocolateyOneGet -Name "*Certificate*"
         $resolved = $filteredSources | Where-Object { $_.Name -eq $expectedCertificateSource }
-        $resolved.Name | Should -Be $expectedCertificateSource 
+        $resolved.Name | Should -Be $expectedCertificateSource
     }
 
     It "lists sources by exact location value" {
@@ -80,22 +80,22 @@ Describe "Get package sources" {
 
     $byPathSource = Get-PackageSource -ProviderName $chocolateyOneGet -Location $PSScriptRoot
 
-    It "not registered location returns source by its location" {      
+    It "not registered location returns source by its location" {
         $byPathSource.Location | Should -Be $PSScriptRoot
     }
 
-    It "not registered location returns not registered source" {      
+    It "not registered location returns not registered source" {
         $byPathSource.IsRegistered | Should -Be $false
     }
 }
 
 Describe "Unregister package source" {
-    BeforeAll { 
+    BeforeAll {
         Clean-Sources
         Register-TestPackageSources
     }
 
-    AfterAll { 
+    AfterAll {
         Clean-Sources
     }
 

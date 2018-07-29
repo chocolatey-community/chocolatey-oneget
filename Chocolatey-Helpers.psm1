@@ -1,6 +1,6 @@
 function IsChocolateyInstalled() {
     $script:chocolateyDir = $null
-    if ($env:ChocolateyInstall -ne $null) {
+    if ($null -ne $env:ChocolateyInstall) {
         $script:chocolateyDir = $env:ChocolateyInstall;
     }
     elseif (Test-Path (Join-Path $env:SYSTEMDRIVE Chocolatey)) {

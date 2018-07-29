@@ -14,11 +14,11 @@ $optionPackageParameters = "PackageParameters"
 $script:wildcardOptions = [System.Management.Automation.WildcardOptions]::CultureInvariant -bor `
                           [System.Management.Automation.WildcardOptions]::IgnoreCase
 
-function Get-PackageProviderName { 
+function Get-PackageProviderName {
     return "Chocolatey-OneGet"
 }
 
-function Initialize-Provider { 
+function Initialize-Provider {
     $chocoBinary = Join-Path $PSScriptRoot "\\chocolatey.dll"
     Add-Type -Path $chocoBinary
 }
@@ -35,7 +35,7 @@ function Get-DynamicOptions{
         $category
     )
 
-    Write-Debug ("Get-DynamicOptions")      
+    Write-Debug ("Get-DynamicOptions")
     switch($category){
         Source {
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPriority -ExpectedType int -IsRequired $false)
@@ -80,11 +80,11 @@ function Resolve-PackageSource {
     });
 
     $method = $choco.GetType().GetMethod("List")
-    $gMethod = $method.MakeGenericMethod([chocolatey.infrastructure.app.configuration.ChocolateySource]) 
+    $gMethod = $method.MakeGenericMethod([chocolatey.infrastructure.app.configuration.ChocolateySource])
     $registered = $gMethod.Invoke($choco, $Null)
-    
+
     foreach($pattern in $SourceNames){
-        if($request.IsCanceled) { 
+        if($request.IsCanceled) {
             return;
         }
 
@@ -154,8 +154,8 @@ function Add-PackageSource {
         $config.SourceCommand.CertificatePassword = $certificatePassword
 
         $credential = $request.Credential
-        
-        if ($credential -ne $Null){
+
+        if ($Null -ne $credential){
             $config.SourceCommand.Username = $credential.UserName
             $config.SourceCommand.Password = $credential.GetNetworkCredential().Password
         }
@@ -204,13 +204,13 @@ function Find-Package {
     param(
         [string]
         $Name,
-        
+
         [string]
         $RequiredVersion,
-        
+
         [string]
         $MinimumVersion,
-        
+
         [string]
         $MaximumVersion
     )
@@ -224,7 +224,7 @@ function Find-Package {
     $byIdOnly = -not [string]::IsNullOrEmpty($Name) -or $queryVersions.defined
 
     if($sourceNames.Count -eq 0){
-        Resolve-PackageSource | ForEach-Object{ 
+        Resolve-PackageSource | ForEach-Object{
             $sourceNames += $_.Name
         }
     }
@@ -237,26 +237,26 @@ function Find-Package {
 
         $config.CommandName = "list"
         $config.Input = $Name
-        $config.Sources = $source 
+        $config.Sources = $source
         $config.ListCommand.ByIdOnly = $byIdOnly
 
         if($queryVersions.min -eq $queryVersions.max){
             $config.Version = $RequiredVersion
         }
-        
+
         $config.AllVersions = $allVersions
         $config.Prerelease = $preRelease
     })
-        
+
     $method = $choco.GetType().GetMethod("List")
-    $gMethod = $method.MakeGenericMethod([chocolatey.infrastructure.results.PackageResult]) 
+    $gMethod = $method.MakeGenericMethod([chocolatey.infrastructure.results.PackageResult])
     $packages = $gMethod.Invoke($choco, $Null)
 
     foreach($found in $packages){
-        if($request.IsCanceled) { 
+        if($request.IsCanceled) {
             return
         }
-        
+
         # Choco has different usage fo the tag filtering option
         $package = $found.Package
         $packageTags = $package.Tags
@@ -265,7 +265,7 @@ function Find-Package {
         foreach($tag in $tags){
             $tagFound = $tagFound -or $packageTags.Contains($tag)
         }
-        
+
         if(-Not $tagFound){
             continue
         }
@@ -277,9 +277,9 @@ function Find-Package {
         }
 
         $packageReference = Build-FastPackageReference $found
-        $identity = New-SoftwareIdentity $packageReference $found.Name $found.Version "semver" $source $found.Description        
+        $identity = New-SoftwareIdentity $packageReference $found.Name $found.Version "semver" $source $found.Description
         Write-Output $identity
-    } 
+    }
 }
 
 function Get-InstalledPackage {
@@ -316,7 +316,7 @@ function Install-Package {
 
    $packageReference = Parse-FastPackageReference $FastPackageReference
    # No need to check for null, since we build it from valid values
-   $source = Resolve-PackageSource $packageReference.Source  
+   $source = Resolve-PackageSource $packageReference.Source
    $multipleVersions = ParseDynamicOption $optionAllowMultiple $false
 
    #TODO needs to solve the source as trusted, otherwise automatic test is not able to execute
@@ -336,9 +336,9 @@ function Install-Package {
    });
 
    $choco.Run()
-   
+
    $identity = New-SoftwareIdentity $FastPackageReference $packageReference.Name `
-        $packageReference.Version "semver" $packageReference.source        
+        $packageReference.Version "semver" $packageReference.source
    Write-Output $identity
  }
 
@@ -373,7 +373,7 @@ function Download-Package {
 
 #region Helper functions
 
-function Get-Chocolatey{ 
+function Get-Chocolatey{
     $choco = [chocolatey.Lets]::GetChocolatey()
     return $choco
 }
@@ -411,7 +411,7 @@ function ThrowError(){
 
     $exception = New-Object $exceptionType $exceptionMessage
     $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-    $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "Chocolatey", $errorCategory, $Null    
+    $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "Chocolatey", $errorCategory, $Null
     $PSCmdlet.ThrowTerminatingError($errorRecord)
 }
 
@@ -443,7 +443,7 @@ function Parse-Version(){
             $defined = $true
         }
     }
-    
+
     return @{ "min" = $min
               "max" = $max
               "defined" = $defined
@@ -460,15 +460,15 @@ function Build-FastPackageReference($package){
     if([System.Uri]::TryCreate($package.Source, [System.UriKind]::Absolute, [ref]$parsedUri) -and $parsedUri.IsFile){
         $source = $parsedUri.AbsolutePath
     }
-    
-    return  "$name|#|$version|#|$source" 
+
+    return  "$name|#|$version|#|$source"
 }
 
 function Parse-FastPackageReference($fastPackageReference){
     $pattern = "(?<Name>.*)\|#\|(?<Version>.*)\|#\|(?<Source>.*)"
     $regEx = [regex]::new($pattern, $wildcardOptions)
     $parsed = $regEx.Match($fastPackageReference)
-    
+
     if($parsed.Success){
         $result = @{
             Name = $parsed.Groups["Name"].Value

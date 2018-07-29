@@ -5,12 +5,12 @@ $latestVersion = "1.0.3"
 $prereleaseVersion = "1.1.0-beta1"
 
 Describe "Find package" {
-    BeforeAll { 
+    BeforeAll {
         Clean-Sources
         Register-TestPackageSources
     }
 
-    AfterAll { 
+    AfterAll {
         Clean-Sources
     }
 
@@ -51,14 +51,14 @@ Describe "Find package" {
         $resolvedVersion | Should -Be $previousVersion
     }
 
-    It "finds package by max. version" {      
+    It "finds package by max. version" {
         $found = Find-Package -Name $testPackageName -ProviderName $chocolateyOneGet -MaximumVersion $previousVersion
         $found.Version | Should -Be $previousVersion
     }
 }
 
 Describe "Install package"  {
-    BeforeAll { 
+    BeforeAll {
         Clean-Sources
         Register-TestPackageSources
     }
@@ -71,37 +71,37 @@ Describe "Install package"  {
         Uninstall-TestPackage
     }
 
-    AfterAll { 
+    AfterAll {
         Clean-Sources
         Uninstall-TestPackage
     }
 
     $latest = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
-    $installedInChoco = Find-InstalledTestPackage 
+    $installedInChoco = Find-InstalledTestPackage
 
-    It "installs latest version" -Skip {      
+    It "installs latest version" -Skip {
         $installedInChoco | Should -Be "TestPackage $latestVersion"
     }
 
-    It "reports installed package" -Skip {      
+    It "reports installed package" -Skip {
         $latest.Version | Should -Be $latestVersion
     }
 
-    It "installs correct version" -Skip {      
+    It "installs correct version" -Skip {
         Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -RequiredVersion $previousVersion
         Find-InstalledTestPackage | Should -Be "TestPackage $previousVersion"
     }
 
-    It "installs from correct source" -Skip {      
+    It "installs from correct source" -Skip {
         $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
-            -Source $expectedSourceName 
+            -Source $expectedSourceName
         $installed.Source -replace '/',"\" | Should -Be $testPackagesPath
     }
 
     It "installs prerelease version" -Skip {
         $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
-            -PrereleaseVersions 
+            -PrereleaseVersions
         $installed.Version | Should -Be $prereleaseVersion
     }
 
@@ -117,14 +117,14 @@ Describe "Install package"  {
     It "uses package custom arguments" {
         Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -PackageParameters '"/custom:""Path spaced"" /other:value"'
-        $installLog = "$env:ChocolateyInstall\lib\TestPackage\UsedParams.txt" 
-        
+        $installLog = "$env:ChocolateyInstall\lib\TestPackage\UsedParams.txt"
+
         $parametersJson = '
 {
     "custom":  "Path spaced",
     "other":  "value"
 }'
-        
+
         $installLog | Should -FileContentMatch $parametersJson
     }
 
