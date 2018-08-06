@@ -116,16 +116,13 @@ Describe "Install package"  {
 
     It "uses package custom arguments" {
         Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
-            -PackageParameters '"/custom:""Path spaced"" /other:value"'
+            -PackageParameters '/customA:""Path spaced"" /customB:""value""'
         $installLog = "$env:ChocolateyInstall\lib\TestPackage\UsedParams.txt"
 
-        $parametersJson = '
-{
-    "custom":  "Path spaced",
-    "other":  "value"
-}'
-
-        $installLog | Should -FileContentMatch $parametersJson
+        $expected = ConvertFrom-Json '{ "customA":  "\"Path spaced\"", "customB":  "\"value\"" }'
+        $installed = ConvertFrom-Json (-Join (Get-Content $installLog))
+        $resultsEqual = $expected.custom -eq $installed.custom -and $expected.other -eq $installed.other
+        $resultsEqual | Should -Be $true
     }
 
     # TODO Upgrade package

@@ -315,13 +315,10 @@ function Install-Package {
    )
 
    $packageReference = Parse-FastPackageReference $FastPackageReference
-   # No need to check for null, since we build it from valid values
-   $source = Resolve-PackageSource $packageReference.Source
    $multipleVersions = ParseDynamicOption $optionAllowMultiple $false
+   $packageArgs = ParseDynamicOption $optionPackageParameters ""
 
    #TODO needs to solve the source as trusted, otherwise automatic test is not able to execute
-   # use additional chocolatey parameters
-   # provide additional installer parameters - extend the testpackage
 
    $choco = Get-Chocolatey
    $choco = $choco.Set({
@@ -333,6 +330,7 @@ function Install-Package {
        $config.Sources = $packageReference.Source
        $config.PromptForConfirmation = $False
        $config.AllowMultipleVersions = $multipleVersions
+       $config.PackageParameters = $packageArgs
    });
 
    $choco.Run()
