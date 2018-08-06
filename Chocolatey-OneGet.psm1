@@ -10,6 +10,7 @@ $optionPreRelease = "PrereleaseVersions"
 $optionAllowMultiple = "AllowMultipleVersions"
 $optionForceDependencies = "ForceDependencies"
 $optionPackageParameters = "PackageParameters"
+$optionUpgrade = "Upgrade"
 
 $script:wildcardOptions = [System.Management.Automation.WildcardOptions]::CultureInvariant -bor `
                           [System.Management.Automation.WildcardOptions]::IgnoreCase
@@ -57,6 +58,7 @@ function Get-DynamicOptions{
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionForceDependencies -ExpectedType switch -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPreRelease -ExpectedType switch -IsRequired $false)
             Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionPackageParameters -ExpectedType string -IsRequired $false)
+            Write-Output -InputObject (New-DynamicOption -Category $category -Name $optionUpgrade -ExpectedType switch -IsRequired $false)
         }
     }
 }
@@ -317,6 +319,12 @@ function Install-Package {
    $packageReference = Parse-FastPackageReference $FastPackageReference
    $multipleVersions = ParseDynamicOption $optionAllowMultiple $false
    $packageArgs = ParseDynamicOption $optionPackageParameters ""
+   $upgrade = ParseDynamicOption $optionUpgrade $false
+   $installCommand = [chocolatey.infrastructure.app.domain.CommandNameType]::install
+
+   if ($upgrade) {
+     $installCommand = [chocolatey.infrastructure.app.domain.CommandNameType]::upgrade
+   }
 
    #TODO needs to solve the source as trusted, otherwise automatic test is not able to execute
 
@@ -324,7 +332,7 @@ function Install-Package {
    $choco = $choco.Set({
        param($config)
 
-       $config.CommandName = "install"
+       $config.CommandName = $installCommand
        $config.PackageNames = $packageReference.Name
        $config.Version = $packageReference.Version
        $config.Sources = $packageReference.Source

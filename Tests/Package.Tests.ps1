@@ -114,7 +114,7 @@ Describe "Install package"  {
         $installed | Should -Be @("TestPackage $previousVersion", "TestPackage $latestVersion")
     }
 
-    It "uses package custom arguments" {
+    It "uses package custom arguments" -Skip {
         Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -PackageParameters '/customA:""Path spaced"" /customB:""value""'
         $installLog = "$env:ChocolateyInstall\lib\TestPackage\UsedParams.txt"
@@ -125,5 +125,12 @@ Describe "Install package"  {
         $resultsEqual | Should -Be $true
     }
 
-    # TODO Upgrade package
+    It "upgrades package" {
+        Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
+            -RequiredVersion $previousVersion
+        Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
+            -Upgrade
+
+        Find-InstalledTestPackage | Should -Be "TestPackage $latestVersion"
+    }
 }
