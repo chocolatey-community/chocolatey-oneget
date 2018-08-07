@@ -36,7 +36,12 @@ function Register-TestPackageSources(){
 
 function Uninstall-TestPackage(){
     # requires atleast one package source
-    Invoke-Expression "choco uninstall $testPackageName -y"
+    Invoke-Expression "choco uninstall $testPackageName -yf"
+}
+
+function Install-TestPackage(){
+    # requires atleast one package source
+    Invoke-Expression "choco install $testPackageName -yf"
 }
 
 function Find-InstalledTestPackage() {

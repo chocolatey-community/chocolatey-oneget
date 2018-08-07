@@ -134,3 +134,41 @@ Describe "Install package"  {
         Find-InstalledTestPackage | Should -Be "TestPackage $latestVersion"
     }
 }
+
+Describe "Get installed package"  {
+    BeforeAll {
+        Clean-Sources
+        Register-TestPackageSources
+    }
+
+    BeforeEach {
+        Install-TestPackage
+    }
+
+    AfterEach {
+        Uninstall-TestPackage
+    }
+
+    AfterAll {
+        Clean-Sources
+        Uninstall-TestPackage
+    }
+
+    It "lists all installed packages" -skip {
+        $result = Get-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
+
+        $result | Should -Be "TestPackage $latestVersion"
+    }
+
+    It "finds installed package by name" -skip {
+    }
+
+    It "lists required package version" -skip {
+    }
+
+    It "lists by maximum version number" -skip {
+    }
+
+    It "lists by minimum version number" -skip {
+    }
+}

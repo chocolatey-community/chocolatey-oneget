@@ -5,7 +5,7 @@ $outputRepository = "$moduleName-OutputRepository"
 $installedModule = "$home\Documents\WindowsPowerShell\Modules\$moduleName"
 $moduleVersion = "0.10.9"
 $testsFilter = "*" # all by default
-#$testsFilter = "Install package"
+$testsFilter = "Get installed package"
 
 Task Default -Depends `
     Build,`
