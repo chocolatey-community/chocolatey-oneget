@@ -111,3 +111,24 @@ Find-Package -Name $packageName -ProviderName Chocolatey-OneGet -AllVersions
 # Find latest version of package including prerelease versions
 Find-Package -Name $packageName -ProviderName Chocolatey-OneGet -PrereleaseVersions
 ```
+
+## 6. Install package
+
+Because of wide range of chocolatey install arguments not all arguments are supported. Also keep in mind to [escape custom package parameters](https://github.com/chocolatey/choco/wiki/CommandsReference#how-to-pass-options--switches). See following examples
+
+```powershell
+# install latest version of package available on any registered compatible source
+Install-Package -Name $packageName -ProviderName Chocolatey-OneGet
+# install required version
+Install-Package -Name $packageName -ProviderName Chocolatey-OneGet -RequiredVersion 2.18.0
+# install from required source
+Install-Package -Name $packageName -ProviderName Chocolatey-OneGet -Source $sourceName
+# install prerelease version
+Install-Package -Name $packageName -ProviderName Chocolatey-OneGet -PrereleaseVersions
+# install multiple versions side by side
+Install-Package -Name $packageName -ProviderName Chocolatey-OneGet -AllowMultipleVersions
+# install using custom package arguments
+Install-Package -Name $packageName -ProviderName Chocolatey-OneGet -PackageParameters '/customA:""Path spaced"" /customB:""value""'
+# upgrade package
+Install-Package -Name $packageName -ProviderName Chocolatey-OneGet -Upgrade
+```
