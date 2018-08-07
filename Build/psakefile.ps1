@@ -5,6 +5,7 @@ $outputRepository = "$moduleName-OutputRepository"
 $installedModule = "$home\Documents\WindowsPowerShell\Modules\$moduleName"
 $moduleVersion = "0.10.9"
 $testsFilter = "*" # all by default
+#$testsFilter = "Install package"
 
 Task Default -Depends `
     Build,`
@@ -49,11 +50,11 @@ Task Register-OutputRepository {
 
 Task Compile-TestPackage {
     $testPackages = Join-Path $targetFolder "TestPackages"
- 
+
     if(-Not (Test-Path $testPackages)){
         mkdir $testPackages | Out-Null
     }
- 
+
     Exec {
         choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages --version=1.0.1
         choco pack ..\TestPackage\TestPackage.nuspec --outputdirectory $testPackages --version=1.0.2
@@ -96,7 +97,7 @@ function Copy-ToTargetFolder(){
     if(-Not (Test-Path $targetFolder)){
         mkdir $targetFolder | Out-Null
     }
-    
+
     Copy-Item -Path "..\$moduleName.psd1" -Destination "$targetFolder\$moduleName.psd1" -Force
     Copy-Item -Path "..\$moduleName.psm1" -Destination "$targetFolder\$moduleName.psm1" -Force
     Copy-Item -Path "..\Chocolatey-Helpers.psm1" -Destination "$targetFolder\Chocolatey-Helpers.psm1" -Force

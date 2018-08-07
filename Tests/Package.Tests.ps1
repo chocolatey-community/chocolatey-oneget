@@ -79,33 +79,33 @@ Describe "Install package"  {
     $latest = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
     $installedInChoco = Find-InstalledTestPackage
 
-    It "installs latest version" -Skip {
+    It "installs latest version" {
         $installedInChoco | Should -Be "TestPackage $latestVersion"
     }
 
-    It "reports installed package" -Skip {
+    It "reports installed package" {
         $latest.Version | Should -Be $latestVersion
     }
 
-    It "installs correct version" -Skip {
+    It "installs correct version" {
         Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -RequiredVersion $previousVersion
         Find-InstalledTestPackage | Should -Be "TestPackage $previousVersion"
     }
 
-    It "installs from correct source" -Skip {
+    It "installs from correct source" {
         $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -Source $expectedSourceName
         $installed.Source -replace '/',"\" | Should -Be $testPackagesPath
     }
 
-    It "installs prerelease version" -Skip {
+    It "installs prerelease version" {
         $installed = Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -PrereleaseVersions
         $installed.Version | Should -Be $prereleaseVersion
     }
 
-    It "installs multiple versions side by side"  -Skip {
+    It "installs multiple versions side by side" {
         Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -RequiredVersion $previousVersion -AllowMultipleVersions
         Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
@@ -114,7 +114,7 @@ Describe "Install package"  {
         $installed | Should -Be @("TestPackage $previousVersion", "TestPackage $latestVersion")
     }
 
-    It "uses package custom arguments" -Skip {
+    It "uses package custom arguments" {
         Install-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force `
             -PackageParameters '/customA:""Path spaced"" /customB:""value""'
         $installLog = "$env:ChocolateyInstall\lib\TestPackage\UsedParams.txt"
