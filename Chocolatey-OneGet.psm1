@@ -1,3 +1,4 @@
+$sourceCommandName = "source"
 $optionPriority = "Priority"
 $optionBypassProxy = "BypassProxy"
 $optionAllowSelfService = "AllowSelfService"
@@ -76,7 +77,7 @@ function Resolve-PackageSource {
     $choco = $choco.Set({
         param($config)
 
-        $config.CommandName = "source"
+        $config.CommandName = $sourceCommandName
         $config.SourceCommand.Command = [chocolatey.infrastructure.app.domain.SourceCommandType]::list
         $config.QuietOutput = $True
     });
@@ -144,7 +145,7 @@ function Add-PackageSource {
     $choco = $choco.Set({
         param($config)
 
-        $config.CommandName = "source"
+        $config.CommandName = $sourceCommandName
         $config.SourceCommand.Command = [chocolatey.infrastructure.app.domain.SourceCommandType]::add
         $config.SourceCommand.Name = $Name
         $config.Sources = $Location
@@ -193,7 +194,7 @@ function Remove-PackageSource {
     $choco = $choco.Set({
         param($config)
 
-        $config.CommandName = "source"
+        $config.CommandName = $sourceCommandName
         $config.SourceCommand.Command = [chocolatey.infrastructure.app.domain.SourceCommandType]::remove
         $config.SourceCommand.Name = $Name
     });
@@ -237,7 +238,8 @@ function Find-Package {
     $choco = $choco.Set({
         param($config)
 
-        $config.CommandName = "list"
+        $config.CommandName = [chocolatey.infrastructure.app.domain.CommandNameType]::list
+
         $config.Input = $Name
         $config.Sources = $source
         $config.ListCommand.ByIdOnly = $byIdOnly
