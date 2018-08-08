@@ -415,7 +415,18 @@ function Download-Package {
         $Location
     )
 
-     #TODO
+    if(-not $Location -or -not (Test-Path $Location)){
+        ThrowError "System.ArgumentException" "Target location is required"
+    }
+
+    # $packageReference = Parse-FastPackageReference $FastPackageReference
+    # $packageInfo = Find-ChocoPackage $packageReference.Name $packageReference.Version
+    # $downloadUrl = $packageInfo.
+    # $packageFile = ""
+    # $targetFile = Join-Path $Location $packageFile
+
+    # # https://chocolatey.org/api/v2/package/chocolatey/0.10.11
+    # Invoke-WebRequest -Uri $downloadUrl -OutFile $targetFile
 }
 
 #region Helper functions
