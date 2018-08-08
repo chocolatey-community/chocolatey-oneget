@@ -363,6 +363,7 @@ function Install-Package {
        $config.PromptForConfirmation = $False
        $config.AllowMultipleVersions = $multipleVersions
        $config.PackageParameters = $packageArgs
+       $config.Features.UsePackageExitCodes = $false
    });
 
    $choco.Run()
@@ -381,7 +382,23 @@ function UnInstall-Package {
         $FastPackageReference
     )
 
-     #TODO
+    $packageReference = Parse-FastPackageReference $FastPackageReference
+
+    $choco = Get-Chocolatey
+    $choco = $choco.Set({
+       param($config)
+
+        $config.CommandName = [chocolatey.infrastructure.app.domain.CommandNameType]::uninstall
+        $config.PackageNames = $packageReference.Name
+        $config.Features.UsePackageExitCodes = $false
+        $config.Version = $packageReference.Version
+    });
+
+    $choco.Run()
+
+    $identity = New-SoftwareIdentity $FastPackageReference $packageReference.Name `
+        $packageReference.Version "semver" $packageReference.source
+    Write-Output $identity
 }
 
 function Download-Package {

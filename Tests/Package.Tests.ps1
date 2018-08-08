@@ -169,3 +169,38 @@ Describe "Get installed package"  {
         $found.Version | Should -Be $previousVersion
     }
 }
+
+Describe "Uninstall package"  {
+    BeforeAll {
+        Clean-Sources
+        Register-TestPackageSources
+        Install-TestPackages
+    }
+
+    AfterAll {
+        Uninstall-TestPackage
+        Clean-Sources
+    }
+
+    $removed = Uninstall-Package -Name $testPackageName -ProviderName $chocolateyOneGet -RequiredVersion $latestVersion
+
+    It "reports removed package name" {
+        $removed.Name | Should -Be $testPackageName
+    }
+
+    It "reports removed package version" {
+        $removed.Version | Should -Be $latestVersion
+    }
+
+    It "removes package from chocolatey" {
+        $installed = Find-InstalledTestPackage | Sort-Object
+        $installed | Should -Be @("TestPackage $previousVersion", "TestPackage $prereleaseVersion")
+    }
+
+    It "removes all versions" {
+        Install-TestPackages
+        Uninstall-Package -Name $testPackageName -ProviderName $chocolateyOneGet -AllVersions
+        $installed = Find-InstalledTestPackage
+        $installed | Should -Be $null
+    }
+}
