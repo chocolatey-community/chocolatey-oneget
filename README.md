@@ -26,8 +26,8 @@ This part contains plain PowerShell implementation of the provider, development 
   * [x] Find-Package
   * [x] Install-Package
   * [x] Get-InstalledPackage
-  * [ ] UnInstall-Package - IN PROGRESS
-  * [ ] Download-Package
+  * [x] UnInstall-Package
+  * [ ] Download-Package - IN PROGRESS
 
 Not implemented
 * Trusted package sources

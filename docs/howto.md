@@ -151,3 +151,16 @@ Get-Package -Name $packageName -ProviderName Chocolatey-OneGet -AllVersions
 # find required package version (similar usage by -MinimumVersion or -MaximumVersion)
 Get-Package -Name $packageName -ProviderName Chocolatey-OneGet -RequiredVersion 2.18.0
 ```
+
+## 8. Uninstall package
+
+If no version is provided and multiple versions are installed, only latest version is uninstalled. To uninstall all versions of the package use `-AllVersions` switch.
+
+```powershell
+# remove only latest version
+Uninstall-Package -Name $packageName -ProviderName Chocolatey-OneGet
+# remove concrete version only
+Uninstall-Package -Name $packageName -ProviderName Chocolatey-OneGet -RequiredVersion 2.18.0
+# remove all versions
+Uninstall-Package -Name $packageName -ProviderName Chocolatey-OneGet -AllVersions
+```
