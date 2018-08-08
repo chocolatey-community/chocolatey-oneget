@@ -218,6 +218,27 @@ function Find-Package {
         $MaximumVersion
     )
 
+    Find-ChocoPackage $Name $RequiredVersion $MinimumVersion $MaximumVersion | Write-Output
+}
+function Find-ChocoPackage {
+    [CmdletBinding()]
+    param(
+        [string]
+        $Name,
+
+        [string]
+        $RequiredVersion,
+
+        [string]
+        $MinimumVersion,
+
+        [string]
+        $MaximumVersion,
+
+        [switch]
+        $localScope
+    )
+
     $sourceNames = $Request.PackageSources
     $tags = ParseDynamicOption $optionTags @()
     $allVersions = ParseDynamicOption $optionAllVersions $false
@@ -243,6 +264,7 @@ function Find-Package {
         $config.Input = $Name
         $config.Sources = $source
         $config.ListCommand.ByIdOnly = $byIdOnly
+        $config.ListCommand.LocalOnly = $localScope
 
         if($queryVersions.min -eq $queryVersions.max){
             $config.Version = $RequiredVersion
@@ -306,7 +328,7 @@ function Get-InstalledPackage {
         $MaximumVersion
     )
 
-    #TODO
+    Find-ChocoPackage $Name $RequiredVersion $MinimumVersion $MaximumVersion -localScope | Write-Output
 }
 
 function Install-Package {
