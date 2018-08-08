@@ -2,17 +2,21 @@
 
 This is the official Chocolatey provider for PackageManagement (aka OneGet).
 
-**NOTE:** For now, you may be more interested in using the ChocolateyGet provider as a stop gap solution until this provider is ready. See https://github.com/jianyunt/ChocolateyGet for details.
+## Features
 
-## Native powershell implementation
+* search/find installed/install/uninstall packages
+* upgrade packages
+* download package
+* manage package sources
+* online/offline installation
 
-This part contains plain PowerShell implementation of the provider, development is done only in this part.
+## [How to use it](/docs/howto.md)
 
-### [How to use it](/docs/howto.md)
+## [License](LICENSE)
 
-### [Development](/docs/contributing.md)
+# [Development](/docs/contributing.md)
 
-### Progress
+## Progress
 
 * [x] Implement metadata
 * [x] Implement install able skeleton
@@ -29,23 +33,15 @@ This part contains plain PowerShell implementation of the provider, development 
   * [x] UnInstall-Package
   * [ ] Download-Package - IN PROGRESS
 
-Not implemented
+## Not implemented
 * Trusted package sources
 * Disable package source
 * Custom credentials in Find-Package
-
-## C# implementation - OBSOLETE
-
-The provider written in C# is obsolete. Requires windows SDK, which contains mt.exe to be able compile the project. No future development here is expected. Related files will be remoted later.
-
-### Development Requires:
-
-* Visual Studio 2013+
-* Any official PackageManagement build from February 2015 or later.
+* Advanced chocolatey switches
 
 ## Contribution
 
-**NOTE:** Seeking maintainers to help finish this Provider. Please inquire on the issues list or on Gitter (see the chat room below). Thanks!
+> **NOTE:** Seeking maintainers to help finish this Provider. Please inquire on the issues list or on Gitter (see the chat room below). Thanks!
 
 Come join in the conversation about Chocolatey in our Gitter Chat Room.
 
