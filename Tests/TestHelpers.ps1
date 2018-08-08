@@ -2,6 +2,9 @@ $chocolateyOneGet = "Chocolatey-OneGet"
 $expectedSourceName = "Chocolatey-TestScriptRoot"
 $expectedCertificateSource = "Chocolatey-CertificateTestScriptRoot"
 $testPackageName = "TestPackage"
+$previousVersion = "1.0.2"
+$latestVersion = "1.0.3"
+$prereleaseVersion = "1.1.0-beta1"
 
 $testPackagesPath = Join-Path $PSScriptRoot "..\Build\Output\TestPackages"
 $testPackagesPath = $(Resolve-Path $testPackagesPath).Path
@@ -36,12 +39,14 @@ function Register-TestPackageSources(){
 
 function Uninstall-TestPackage(){
     # requires atleast one package source
-    Invoke-Expression "choco uninstall $testPackageName -yf"
+    Invoke-Expression "choco uninstall $testPackageName --all-versions --yes --force"
 }
 
-function Install-TestPackage(){
+function Install-TestPackages(){
     # requires atleast one package source
-    Invoke-Expression "choco install $testPackageName -yf"
+    Invoke-Expression "choco install $testPackageName --version $previousVersion --yes --allow-multiple-versions --force"
+    Invoke-Expression "choco install $testPackageName --version $latestVersion --yes --allow-multiple-versions --force"
+    Invoke-Expression "choco install $testPackageName --version $prereleaseVersion --prerelease --yes --allow-multiple-versions --force"
 }
 
 function Find-InstalledTestPackage() {

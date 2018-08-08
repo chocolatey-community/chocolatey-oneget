@@ -1,9 +1,5 @@
 . $PSScriptRoot\TestHelpers.ps1
 
-$previousVersion = "1.0.2"
-$latestVersion = "1.0.3"
-$prereleaseVersion = "1.1.0-beta1"
-
 Describe "Find package" {
     BeforeAll {
         Clean-Sources
@@ -139,36 +135,37 @@ Describe "Get installed package"  {
     BeforeAll {
         Clean-Sources
         Register-TestPackageSources
-    }
-
-    BeforeEach {
-        Install-TestPackage
-    }
-
-    AfterEach {
-        Uninstall-TestPackage
+        Install-TestPackages
     }
 
     AfterAll {
-        Clean-Sources
         Uninstall-TestPackage
+        Clean-Sources
     }
 
-    It "lists all installed packages" -skip {
-        $result = Get-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
-
-        $result | Should -Be "TestPackage $latestVersion"
+    It "finds all installed package versions" {
+        $found = Get-Package -Name $testPackageName -ProviderName $chocolateyOneGet -AllVersions -Force
+        $found.Count | Should -Be 3
     }
 
-    It "finds installed package by name" -skip {
+    It "finds installed package by name" {
+        $found = Get-Package -Name $testPackageName -ProviderName $chocolateyOneGet -Force
+        $found.Name | Should -Be $testPackageName
     }
 
-    It "lists required package version" -skip {
+    It "finds required package version" {
+        $found = Get-Package -Name $testPackageName -ProviderName $chocolateyOneGet -RequiredVersion $previousVersion
+        $found.Version | Should -Be $previousVersion
     }
 
-    It "lists by maximum version number" -skip {
+    It "finds by minimum version number" {
+        # allversions switch cant be used here, so we test latest available
+        $found = Get-Package -Name $testPackageName -ProviderName $chocolateyOneGet -MinimumVersion $prereleaseVersion
+        $found.Version | Should -Be $prereleaseVersion
     }
 
-    It "lists by minimum version number" -skip {
+    It "finds by maximum version number" {
+        $found = Get-Package -Name $testPackageName -ProviderName $chocolateyOneGet -MaximumVersion $previousVersion
+        $found.Version | Should -Be $previousVersion
     }
 }
