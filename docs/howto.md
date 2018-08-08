@@ -110,6 +110,8 @@ Find-Package -ProviderName Chocolatey-OneGet -Tag @("TagC", "TagA")
 Find-Package -Name $packageName -ProviderName Chocolatey-OneGet -AllVersions
 # Find latest version of package including prerelease versions
 Find-Package -Name $packageName -ProviderName Chocolatey-OneGet -PrereleaseVersions
+# search for exact version (similar usage by -MinimumVersion or -MaximumVersion)
+Find-Package -Name $packageName -ProviderName Chocolatey-OneGet -RequiredVersion 2.18.0
 ```
 
 ## 6. Install package
@@ -131,4 +133,21 @@ Install-Package -Name $packageName -ProviderName Chocolatey-OneGet -AllowMultipl
 Install-Package -Name $packageName -ProviderName Chocolatey-OneGet -PackageParameters '/customA:""Path spaced"" /customB:""value""'
 # upgrade package
 Install-Package -Name $packageName -ProviderName Chocolatey-OneGet -Upgrade
+```
+
+## 7. Get installed package
+
+To search for installed package is similar to searching for package in remote source by `Find-Package`. See examples
+
+ > **NOTE:** Switch `-AllVersions` can't be used together with `-RequiredVersion` `-MinimumVersion` or `-MaximumVersion`
+
+```powershell
+# list all installed packages (only latest version per package)
+Get-Package -ProviderName Chocolatey-OneGet
+#find installed package by name
+Get-Package -Name $packageName -ProviderName Chocolatey-OneGet
+# find all installed package versions
+Get-Package -Name $packageName -ProviderName Chocolatey-OneGet -AllVersions
+# find required package version (similar usage by -MinimumVersion or -MaximumVersion)
+Get-Package -Name $packageName -ProviderName Chocolatey-OneGet -RequiredVersion 2.18.0
 ```
