@@ -283,7 +283,7 @@ function Find-ChocoPackage {
             return
         }
 
-        # Choco has different usage fo the tag filtering option
+        # Choco has different usage for the tag filtering option
         $package = $found.Package
         $packageTags = $package.Tags
         $tagFound = $tags.Count -eq 0
@@ -302,8 +302,25 @@ function Find-ChocoPackage {
             continue
         }
 
+        $packageName = $found.Name
+        $packageVersion = $found.Version
+        $fileName = "$packageName.$packageVersion.nupkg"
         $packageReference = Build-FastPackageReference $found
-        $identity = New-SoftwareIdentity $packageReference $found.Name $found.Version "semver" $source $found.Description
+
+        # web server sends Uri, but local and Unc paths fill only source with full directory path
+        $fullPath = $found.SourceUri
+        if($Null -eq $fullPath) {
+            $parsedUri = $null
+
+            if([System.Uri]::TryCreate($found.Source, [System.UriKind]::Absolute, [ref]$parsedUri) -and $parsedUri.IsFile) {
+                $fullPath = Join-Path $parsedUri.AbsolutePath $fileName
+            } else {
+                ThrowError "System.FormatException" "Unable to parse local file path from '$fullPath'"
+            }
+        }
+
+        $identity = New-SoftwareIdentity $packageReference $packageName $packageVersion "semver" `
+                        $source $found.Description $Name $fullPath $fileName
         Write-Output $identity
     }
 }
@@ -419,14 +436,28 @@ function Download-Package {
         ThrowError "System.ArgumentException" "Target location is required"
     }
 
-    # $packageReference = Parse-FastPackageReference $FastPackageReference
-    # $packageInfo = Find-ChocoPackage $packageReference.Name $packageReference.Version
-    # $downloadUrl = $packageInfo.
-    # $packageFile = ""
-    # $targetFile = Join-Path $Location $packageFile
+    $force = ParseDynamicOption "Force" $false
+    $packageReference = Parse-FastPackageReference $FastPackageReference
+    $found = Find-ChocoPackage $packageReference.Name $packageReference.Version
+    $downloadUrl = $found.FullPath
+    $fileName = $found.PackageFilename
+    $output = Join-Path $outputDirectory $fileName
 
-    # # https://chocolatey.org/api/v2/package/chocolatey/0.10.11
-    # Invoke-WebRequest -Uri $downloadUrl -OutFile $targetFile
+    if (!(Test-Path $outputDirectory)) {
+        New-Item -ItemType Directory $outputDirectory
+    }
+
+    $parsedUri = $null
+
+    if([System.Uri]::TryCreate($downloadUrl, [System.UriKind]::Absolute, [ref]$parsedUri)) {
+        if($parsedUri.IsFile){
+            Copy-Item -Path $parsedUri.AbsolutePath -Destination $output -Force:$force
+        } else {
+            Invoke-WebRequest -Uri $downloadUrl -OutFile $output
+        }
+    } else {
+        ThrowError "System.FormatException" "Unable to parse download address from '$downloadUrl'"
+    }
 }
 
 #region Helper functions
@@ -481,7 +512,7 @@ function Parse-Version(){
 
     [NuGet.SemanticVersion]$min = $null
     [NuGet.SemanticVersion]$max = $null
-    [NuGet.SemanticVersion]$actual = $nullon
+    [NuGet.SemanticVersion]$actual = $null
     $defined = $false
 
     if (-Not [string]::IsNullOrEmpty($requiredVersion) -and [NuGet.SemanticVersion]::TryParse($requiredVersion, [ref] $actual)){
@@ -509,12 +540,11 @@ function Parse-Version(){
 }
 
 function Build-FastPackageReference($package){
-    $name =$package.Name
+    $name = $package.Name
     $version = $package.Version
     $source = $package.Source
     $parsedUri = $null
 
-    # TODO check the same for UNC path
     if([System.Uri]::TryCreate($package.Source, [System.UriKind]::Absolute, [ref]$parsedUri) -and $parsedUri.IsFile){
         $source = $parsedUri.AbsolutePath
     }

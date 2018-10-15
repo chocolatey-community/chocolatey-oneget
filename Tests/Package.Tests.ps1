@@ -204,3 +204,31 @@ Describe "Uninstall package"  {
         $installed | Should -Be $null
     }
 }
+
+
+Describe "Download package" {
+    $downLoadDirectory = "$PSScriptRoot\..\Build\Output\Downloaded\"
+
+    BeforeEach {
+        Remove-Item $downLoadDirectory -Recurse -Force -ErrorAction Ignore
+    }
+    BeforeAll {
+        Clean-Sources
+        Register-TestPackageSources
+    }
+
+    AfterAll {
+        Clean-Sources
+    }
+
+    It "copies from local path" {
+        # Example paths:
+        # web: "https://chocolatey.org/api/v2/package/chocolatey/0.10.11"
+        # local "c:\Workspace\Build\Output\TestPackages\TestPackage.1.0.1.nupkg"
+        # unc "\\localhost\c$\Workspaces\Chocolatey-OneGet_GitHub\Build\Output\TestPackages\TestPackage.1.0.1.nupkg"
+
+        Save-Package -ProviderName $chocolateyOneGet -Name $testPackageName -Path $downLoadDirectory -Force
+        $outputFile = Join-Path $downLoadDirectory "testPackage.1.0.3.nupkg" 
+        $outputFile | Should -Exist
+    }
+}
