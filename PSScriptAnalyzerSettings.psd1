@@ -1,0 +1,23 @@
+@{
+    IncludeRules = @('PSAvoidAssignmentToAutomaticVariable',
+                    'PSAvoidDefaultValueSwitchParameter',
+                    'PSAvoidGlobalAliases',
+                    'PSAvoidGlobalFunctions',
+                    'PSAvoidGlobalVars',
+                    'PSAvoidTrailingWhitespace',
+                    'PSAvoidUsingCmdletAliases',
+                    'PSAvoidUsingEmptyCatchBlock',
+                    'PSMisleadingBacktick',
+                    'PSMissingModuleManifestField',
+                    'PSPossibleIncorrectComparisonWithNull',
+                    'PSPossibleIncorrectUsageOfAssignmentOperator',
+                    'PSPossibleIncorrectUsageOfRedirectionOperator',
+                    'PSReservedCmdletChar',
+                    'PSReservedParams',
+                    'PSReservedParams',
+                    'PSShouldProcess',
+                    'PSUseApprovedVerbs',
+                    'PSUseDeclaredVarsMoreThanAssignments',
+                    'PSUseLiteralInitializerForHashtable'
+                     )
+}

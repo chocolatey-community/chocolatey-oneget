@@ -1,16 +1,48 @@
-**NOTE:** Seeking maintainers to help finish this Provider. Please inquire on the issues list or on Gitter (see the chat room below). Thanks!
+# Chocolatey Provider for PowerShell PackageManagement
 
-**NOTE:** For now, you may be more interested in using the ChocolateyGet provider as a stop gap solution until this provider is ready. See https://github.com/jianyunt/ChocolateyGet for details
+This is the official Chocolatey provider for PackageManagement (aka OneGet).
 
-# Chocolatey Provider for PowerShell PackageManagement (aka OneGet) (C#)
-This will be the official Chocolatey provider for PackageManagement.
+## Features
 
-## Development Requires:
-    - Visual Studio 2013+
-    - Any official PackageManagement build from February 2015 or later.
+* search/find installed/install/uninstall packages
+* upgrade packages
+* download package
+* manage package sources
+* online/offline installation
 
-## Chat Room
+## [How to use it](/docs/howto.md)
 
-Come join in the conversation about Chocolatey in our Gitter Chat Room
+## [License](LICENSE)
+
+# [Development](/docs/contributing.md)
+
+## Progress
+
+* [x] Implement metadata
+* [x] Implement install able skeleton
+* [x] Prepare build and test infrastructure
+* API:
+  * [x] Get-ProviderName
+  * [x] Initialize-Provider
+  * [x] Resolve-PackageSource
+  * [x] Add-PackageSource
+  * [x] Remove-PackageSource
+  * [x] Find-Package
+  * [x] Install-Package
+  * [x] Get-InstalledPackage
+  * [x] UnInstall-Package
+  * [ ] Download-Package - IN PROGRESS
+
+## Not implemented
+* Trusted package sources
+* Disable package source
+* Custom credentials in Find-Package
+* Advanced chocolatey switches
+
+## Contribution
+
+> **NOTE:** Seeking maintainers to help finish this Provider. Please inquire on the issues list or on Gitter (see the chat room below). Thanks!
+
+Come join in the conversation about Chocolatey in our Gitter Chat Room.
 
 [![Join the chat at https://gitter.im/chocolatey/chocolatey-oneget](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/chocolatey/chocolatey-oneget?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

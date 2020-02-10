@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "Build",
+            "script": "Invoke-Psake",
+            "args": ["Build"],
+            "cwd": "${workspaceRoot}\\Build"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "Build and Test",
+            "script": "Invoke-Psake",
+            "args": [],
+            "cwd": "${workspaceRoot}\\Build"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "Test",
+            "script": "Invoke-Psake",
+            "args": ["Test"],
+            "cwd": "${workspaceRoot}\\Build"
+        }
+    ]
+}

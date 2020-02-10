@@ -98,3 +98,6 @@ policheck*
 *.orig.sln
 *pingme*
 *.GhostDoc.xml
+**/.vs/ChocolateyProvider
+/paket-files/
+/.paket/
